@@ -1,8 +1,10 @@
-# Python
+# Python缓存文件
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+
+# 分发/打包
 .Python
 build/
 develop-eggs/
@@ -19,63 +21,15 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
+# 测试和覆盖率
 .coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
 .pytest_cache/
+.tox/
+.nox/
+htmlcov/
 
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
+# 环境变量
 .env
 .venv
 env/
@@ -84,29 +38,14 @@ ENV/
 env.bak/
 venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# IDE
+# IDE文件
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS
+# 操作系统文件
 .DS_Store
 .DS_Store?
 ._*
@@ -115,13 +54,22 @@ dmypy.json
 ehthumbs.db
 Thumbs.db
 
-# 项目特定
-uploads/
-*.sqlite
-*.db
+# 日志文件
+*.log
+logs/
 
-# Docker
+# 临时文件
+*.tmp
+*.temp
+*.bak
+
+# 上传的文件（保留目录结构但忽略具体文件）
+uploads/*
+!uploads/.gitkeep
+
+# Docker相关
 .dockerignore
 
-# 日志文件
-*.log 
+# 其他
+.coverage
+.nyc_output 

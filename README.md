@@ -52,17 +52,41 @@
 git clone https://github.com/colaiii/Forum.git
 cd Forum
 
-# 2. 启动服务
-docker-compose up -d
+# 2. 构建镜像
+docker compose build
 
-# 3. 等待服务就绪 (约30秒)
-docker-compose logs -f web
+# 3. 启动服务
+docker compose up -d
 
-# 4. 访问论坛
+# 4. 等待服务就绪 (约30秒)
+docker compose logs -f web
+
+# 5. 访问论坛
 浏览器打开: http://localhost:8080
 ```
 
 ### 开发环境搭建
+
+#### 使用Docker（推荐）
+```bash
+# 1. 克隆项目
+git clone https://github.com/colaiii/Forum.git
+cd Forum
+
+# 2. 构建开发镜像
+docker compose build
+
+# 3. 启动开发环境
+docker compose up -d
+
+# 4. 查看日志
+docker compose logs -f web
+
+# 5. 停止服务
+docker compose down
+```
+
+#### 本地Python环境
 ```bash
 # 1. 安装Python依赖
 pip install -r requirements.txt
@@ -78,6 +102,24 @@ python -c "from app import create_app, db; app=create_app(); app.app_context().d
 
 # 4. 启动开发服务器
 python wsgi.py
+```
+
+#### 常用Docker命令
+```bash
+# 重新构建镜像（代码更新后）
+docker compose build --no-cache
+
+# 查看服务状态
+docker compose ps
+
+# 查看日志
+docker compose logs -f [service_name]
+
+# 进入容器调试
+docker compose exec web bash
+
+# 清理所有容器和镜像
+docker compose down --rmi all --volumes
 ```
 
 ## 📁 项目结构
@@ -323,6 +365,18 @@ UPLOAD_FOLDER=/app/uploads   # 上传目录
 2. 配置SSL证书（推荐Let's Encrypt）
 3. 更新 `docker-compose.yml` 端口映射
 
+### 部署步骤
+```bash
+# 1. 构建生产镜像
+docker compose build --no-cache
+
+# 2. 启动服务
+docker compose up -d
+
+# 3. 查看服务状态
+docker compose ps
+```
+
 ### 性能优化
 1. 启用Nginx Gzip压缩
 2. 配置静态文件缓存
@@ -332,10 +386,13 @@ UPLOAD_FOLDER=/app/uploads   # 上传目录
 ### 监控与日志
 ```bash
 # 查看服务状态
-docker-compose ps
+docker compose ps
 
 # 查看实时日志
-docker-compose logs -f
+docker compose logs -f
+
+# 查看特定服务日志
+docker compose logs -f web
 
 # 资源使用情况
 docker stats
