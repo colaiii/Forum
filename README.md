@@ -1,6 +1,6 @@
 # 校园网匿名论坛
 
-一个专为校园网用户设计的匿名论坛系统，提供安全、便捷的匿名交流平台。支持饼干(Cookie)匿名机制、饼干收藏管理、Markdown格式、图片分享等丰富功能。
+一个专为校园网用户设计的匿名论坛系统，提供安全、便捷的匿名交流平台。支持饼干(Cookie)匿名机制、饼干收藏管理、置顶管理、Markdown格式、图片分享等丰富功能。
 
 ## ✨ 核心特性
 
@@ -20,7 +20,7 @@
   - 智能暂停机制：页面不可见时自动暂停，节省资源
 - 🎨 **响应式界面**: 适配桌面和移动设备的现代化UI
 - 🔒 **内容过滤**: 智能内容审核，维护健康讨论环境
-- 🛠️ **强大管理工具**: 完整的后台管理脚本，支持串管理、统计分析、批量操作
+- 🛠️ **强大管理工具**: 完整的后台管理脚本，支持串管理、置顶管理、统计分析、批量操作
 - 🐳 **容器化部署**: 基于Docker的一键部署方案
 
 ## 🛠️ 技术架构
@@ -132,6 +132,8 @@ docker compose down --rmi all --volumes
 docker compose exec web python admin_tools.py stats      # 查看统计
 docker compose exec web python admin_tools.py list       # 列出串
 docker compose exec web python admin_tools.py cleanup --days 30  # 清理旧串
+docker compose exec web python admin_tools.py pin --id 1  # 设置置顶串
+docker compose exec web python admin_tools.py list-pinned # 列出置顶串
 ```
 
 ## 📁 项目结构
@@ -166,7 +168,7 @@ Forum/
 ├── Dockerfile             # 应用镜像
 ├── requirements.txt       # Python依赖
 ├── demo.py               # 演示数据生成
-├── admin_tools.py        # 论坛管理工具脚本
+├── admin_tools.py        # 论坛管理工具脚本（支持串管理、置顶管理、统计分析）
 └── wsgi.py               # 应用入口
 ```
 
@@ -370,6 +372,24 @@ docker compose exec web python admin_tools.py batch --ids 1,2,3,4
 docker compose exec web python admin_tools.py cleanup --days 30
 ```
 
+##### 📌 置顶管理
+```bash
+# 设置单个串为置顶
+docker compose exec web python admin_tools.py pin --id 1
+
+# 取消单个串的置顶
+docker compose exec web python admin_tools.py unpin --id 1
+
+# 列出所有置顶串
+docker compose exec web python admin_tools.py list-pinned
+
+# 批量设置多个串为置顶
+docker compose exec web python admin_tools.py batch-pin --ids 1,2,3
+
+# 批量取消多个串的置顶
+docker compose exec web python admin_tools.py batch-unpin --ids 1,2,3
+```
+
 ##### 🚀 高级操作
 ```bash
 # 强制删除（跳过确认）
@@ -403,6 +423,12 @@ docker compose exec web python admin_tools.py delete-user --cookie abc123
 
 # 监控分析：查看论坛状态
 docker compose exec web python admin_tools.py stats
+
+# 置顶管理：设置重要公告
+docker compose exec web python admin_tools.py pin --id 1
+
+# 置顶管理：查看当前置顶串
+docker compose exec web python admin_tools.py list-pinned
 ```
 
 ### 配置说明
@@ -603,5 +629,6 @@ docker stats
 - 💬 v1.4.0: 优化引用功能，改进用户体验
 - 🛠️ v1.5.0: 新增强大的管理工具系统，支持完整的串管理和维护功能
 - 🔄 v1.6.0: 新增实时自动刷新系统，支持无感知内容更新和智能页面检测
+- 📌 v1.7.0: 新增置顶管理功能，支持串的置顶设置、批量操作和置顶串列表管理
 
 © 2025 校园网匿名论坛 | 基于Flask开发 | 包含完整的安全防护体系 

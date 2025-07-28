@@ -9,6 +9,11 @@
     python admin_tools.py delete-user --cookie abc123    # 删除用户所有串
     python admin_tools.py cleanup --days 30      # 清理30天前的串
     python admin_tools.py stats                  # 查看统计信息
+    python admin_tools.py pin --id 5             # 设置串ID为5的串为置顶
+    python admin_tools.py unpin --id 5           # 取消串ID为5的串的置顶
+    python admin_tools.py list-pinned            # 列出所有置顶串
+    python admin_tools.py batch-pin --ids 1,2,3  # 批量设置置顶串
+    python admin_tools.py batch-unpin --ids 1,2,3 # 批量取消置顶串
 """
 
 import os
@@ -236,6 +241,172 @@ def batch_delete_threads(thread_ids, force=False):
         print(f"✅ 成功删除 {deleted_count} 个串")
         return deleted_count
 
+def pin_thread(thread_id, force=False):
+    """设置串为置顶"""
+    app = create_app()
+    with app.app_context():
+        thread = Thread.query.get(thread_id)
+        if not thread:
+            print(f"❌ 串 {thread_id} 不存在")
+            return False
+        
+        if thread.is_pinned:
+            print(f"⚠️  串 {thread_id} 已经是置顶状态")
+            return False
+        
+        print(f"📌 准备设置置顶串:")
+        print(f"   ID: {thread_id}")
+        print(f"   标题: {thread.title}")
+        print(f"   回复数: {thread.reply_count}")
+        print(f"   创建时间: {thread.created_at}")
+        
+        if not force and not confirm_action("⚠️  确认设置此串为置顶？"):
+            print("❌ 操作已取消")
+            return False
+        
+        thread.is_pinned = True
+        db.session.commit()
+        print(f"✅ 成功设置串 {thread_id}: {thread.title} 为置顶")
+        return True
+
+def unpin_thread(thread_id, force=False):
+    """取消串的置顶状态"""
+    app = create_app()
+    with app.app_context():
+        thread = Thread.query.get(thread_id)
+        if not thread:
+            print(f"❌ 串 {thread_id} 不存在")
+            return False
+        
+        if not thread.is_pinned:
+            print(f"⚠️  串 {thread_id} 不是置顶状态")
+            return False
+        
+        print(f"📌 准备取消置顶串:")
+        print(f"   ID: {thread_id}")
+        print(f"   标题: {thread.title}")
+        print(f"   回复数: {thread.reply_count}")
+        print(f"   创建时间: {thread.created_at}")
+        
+        if not force and not confirm_action("⚠️  确认取消此串的置顶状态？"):
+            print("❌ 操作已取消")
+            return False
+        
+        thread.is_pinned = False
+        db.session.commit()
+        print(f"✅ 成功取消串 {thread_id}: {thread.title} 的置顶状态")
+        return True
+
+def list_pinned_threads():
+    """列出所有置顶串"""
+    app = create_app()
+    with app.app_context():
+        pinned_threads = Thread.query.filter_by(is_pinned=True).order_by(Thread.created_at.desc()).all()
+        
+        if not pinned_threads:
+            print("📌 当前没有置顶串")
+            return
+        
+        print(f"📌 共有 {len(pinned_threads)} 个置顶串:")
+        print("-" * 95)
+        print(f"{'ID':>3} | {'标题':30} | {'回复':>4} | {'创建时间':16} | {'饼干ID':12}")
+        print("-" * 95)
+        
+        for thread in pinned_threads:
+            cookie_short = thread.cookie_id[:8] + "..." if len(thread.cookie_id) > 8 else thread.cookie_id
+            title_short = thread.title[:28] + "..." if len(thread.title) > 28 else thread.title
+            print(f"{thread.id:3d} | {title_short:30} | {thread.reply_count:4d} | {thread.created_at.strftime('%Y-%m-%d %H:%M')} | {cookie_short}")
+
+def batch_pin_threads(thread_ids, force=False):
+    """批量设置置顶串"""
+    app = create_app()
+    with app.app_context():
+        threads = Thread.query.filter(Thread.id.in_(thread_ids)).all()
+        
+        if not threads:
+            print("❌ 未找到要设置置顶的串")
+            return 0
+        
+        found_ids = [t.id for t in threads]
+        missing_ids = [tid for tid in thread_ids if tid not in found_ids]
+        
+        if missing_ids:
+            print(f"⚠️  以下串ID不存在: {missing_ids}")
+        
+        # 筛选出非置顶串
+        non_pinned_threads = [t for t in threads if not t.is_pinned]
+        already_pinned = [t for t in threads if t.is_pinned]
+        
+        if already_pinned:
+            print(f"⚠️  以下串已经是置顶状态: {[t.id for t in already_pinned]}")
+        
+        if not non_pinned_threads:
+            print("❌ 没有需要设置置顶的串")
+            return 0
+        
+        print(f"📌 准备批量设置 {len(non_pinned_threads)} 个串为置顶:")
+        for thread in non_pinned_threads:
+            print(f"   #{thread.id}: {thread.title} ({thread.reply_count} 回复)")
+        
+        if not force and not confirm_action("⚠️  确认批量设置这些串为置顶？"):
+            print("❌ 操作已取消")
+            return 0
+        
+        pinned_count = 0
+        for thread in non_pinned_threads:
+            thread.is_pinned = True
+            print(f"📌 设置置顶: {thread.id} - {thread.title}")
+            pinned_count += 1
+        
+        db.session.commit()
+        print(f"✅ 成功设置 {pinned_count} 个串为置顶")
+        return pinned_count
+
+def batch_unpin_threads(thread_ids, force=False):
+    """批量取消置顶串"""
+    app = create_app()
+    with app.app_context():
+        threads = Thread.query.filter(Thread.id.in_(thread_ids)).all()
+        
+        if not threads:
+            print("❌ 未找到要取消置顶的串")
+            return 0
+        
+        found_ids = [t.id for t in threads]
+        missing_ids = [tid for tid in thread_ids if tid not in found_ids]
+        
+        if missing_ids:
+            print(f"⚠️  以下串ID不存在: {missing_ids}")
+        
+        # 筛选出置顶串
+        pinned_threads = [t for t in threads if t.is_pinned]
+        not_pinned = [t for t in threads if not t.is_pinned]
+        
+        if not_pinned:
+            print(f"⚠️  以下串不是置顶状态: {[t.id for t in not_pinned]}")
+        
+        if not pinned_threads:
+            print("❌ 没有需要取消置顶的串")
+            return 0
+        
+        print(f"📌 准备批量取消 {len(pinned_threads)} 个串的置顶状态:")
+        for thread in pinned_threads:
+            print(f"   #{thread.id}: {thread.title} ({thread.reply_count} 回复)")
+        
+        if not force and not confirm_action("⚠️  确认批量取消这些串的置顶状态？"):
+            print("❌ 操作已取消")
+            return 0
+        
+        unpinned_count = 0
+        for thread in pinned_threads:
+            thread.is_pinned = False
+            print(f"📌 取消置顶: {thread.id} - {thread.title}")
+            unpinned_count += 1
+        
+        db.session.commit()
+        print(f"✅ 成功取消 {unpinned_count} 个串的置顶状态")
+        return unpinned_count
+
 def main():
     parser = argparse.ArgumentParser(description='论坛管理工具', 
                                    formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -248,16 +419,22 @@ def main():
   python admin_tools.py cleanup --days 30       # 清理30天前的串
   python admin_tools.py batch --ids 1,2,3       # 批量删除串
   python admin_tools.py stats                   # 查看统计信息
+  python admin_tools.py pin --id 5              # 设置串ID为5的串为置顶
+  python admin_tools.py unpin --id 5            # 取消串ID为5的串的置顶
+  python admin_tools.py list-pinned             # 列出所有置顶串
+  python admin_tools.py batch-pin --ids 1,2,3   # 批量设置置顶串
+  python admin_tools.py batch-unpin --ids 1,2,3 # 批量取消置顶串
 """)
     
     parser.add_argument('action', 
-                       choices=['list', 'delete', 'delete-user', 'cleanup', 'stats', 'batch'], 
+                       choices=['list', 'delete', 'delete-user', 'cleanup', 'stats', 'batch', 
+                               'pin', 'unpin', 'list-pinned', 'batch-pin', 'batch-unpin'], 
                        help='要执行的操作')
     
     parser.add_argument('--id', type=int, help='串ID')
     parser.add_argument('--cookie', type=str, help='饼干ID')
     parser.add_argument('--days', type=int, default=30, help='清理多少天前的串 (默认30天)')
-    parser.add_argument('--ids', type=str, help='批量删除的串ID列表，用逗号分隔，如: 1,2,3')
+    parser.add_argument('--ids', type=str, help='批量操作的串ID列表，用逗号分隔，如: 1,2,3')
     parser.add_argument('--all', action='store_true', help='显示所有串（仅用于list）')
     parser.add_argument('--force', action='store_true', help='强制执行，跳过确认')
     
@@ -298,6 +475,43 @@ def main():
         
         elif args.action == 'stats':
             show_stats()
+        
+        elif args.action == 'pin':
+            if not args.id:
+                print("❌ 请提供串ID: --id <thread_id>")
+                return 1
+            pin_thread(args.id, args.force)
+        
+        elif args.action == 'unpin':
+            if not args.id:
+                print("❌ 请提供串ID: --id <thread_id>")
+                return 1
+            unpin_thread(args.id, args.force)
+        
+        elif args.action == 'list-pinned':
+            list_pinned_threads()
+        
+        elif args.action == 'batch-pin':
+            if not args.ids:
+                print("❌ 请提供串ID列表: --ids 1,2,3")
+                return 1
+            try:
+                thread_ids = [int(x.strip()) for x in args.ids.split(',')]
+                batch_pin_threads(thread_ids, args.force)
+            except ValueError:
+                print("❌ 串ID格式错误，请使用逗号分隔的数字，如: 1,2,3")
+                return 1
+        
+        elif args.action == 'batch-unpin':
+            if not args.ids:
+                print("❌ 请提供串ID列表: --ids 1,2,3")
+                return 1
+            try:
+                thread_ids = [int(x.strip()) for x in args.ids.split(',')]
+                batch_unpin_threads(thread_ids, args.force)
+            except ValueError:
+                print("❌ 串ID格式错误，请使用逗号分隔的数字，如: 1,2,3")
+                return 1
         
         print("\n✨ 操作完成！")
         return 0
