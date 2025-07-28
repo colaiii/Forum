@@ -38,6 +38,144 @@ function hideRulesModal() {
     }
 }
 
+// 自定义确认弹窗
+function customConfirm(message, title = '确认操作') {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('customConfirmModal');
+        const titleEl = document.getElementById('confirmTitle');
+        const messageEl = document.getElementById('confirmMessage');
+        const okBtn = document.getElementById('confirmOk');
+        const cancelBtn = document.getElementById('confirmCancel');
+        
+        if (!modal || !titleEl || !messageEl || !okBtn || !cancelBtn) {
+            // 如果自定义弹窗元素不存在，回退到原生confirm
+            resolve(confirm(message));
+            return;
+        }
+        
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        const cleanup = () => {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+            modal.removeEventListener('click', handleBackdrop);
+        };
+        
+        const handleOk = () => {
+            cleanup();
+            resolve(true);
+        };
+        
+        const handleCancel = () => {
+            cleanup();
+            resolve(false);
+        };
+        
+        const handleBackdrop = (e) => {
+            if (e.target === modal) {
+                handleCancel();
+            }
+        };
+        
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+        modal.addEventListener('click', handleBackdrop);
+        
+        // 自动聚焦到确定按钮
+        setTimeout(() => okBtn.focus(), 100);
+    });
+}
+
+// 自定义输入弹窗
+function customPrompt(message, defaultValue = '', title = '输入信息') {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('customPromptModal');
+        const titleEl = document.getElementById('promptTitle');
+        const messageEl = document.getElementById('promptMessage');
+        const inputEl = document.getElementById('promptInput');
+        const okBtn = document.getElementById('promptOk');
+        const cancelBtn = document.getElementById('promptCancel');
+        
+        if (!modal || !titleEl || !messageEl || !inputEl || !okBtn || !cancelBtn) {
+            // 如果自定义弹窗元素不存在，回退到原生prompt
+            resolve(prompt(message, defaultValue));
+            return;
+        }
+        
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        inputEl.value = defaultValue;
+        inputEl.placeholder = defaultValue;
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        const cleanup = () => {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+            modal.removeEventListener('click', handleBackdrop);
+            inputEl.removeEventListener('keydown', handleKeydown);
+        };
+        
+        const handleOk = () => {
+            cleanup();
+            resolve(inputEl.value.trim() || null);
+        };
+        
+        const handleCancel = () => {
+            cleanup();
+            resolve(null);
+        };
+        
+        const handleBackdrop = (e) => {
+            if (e.target === modal) {
+                handleCancel();
+            }
+        };
+        
+        const handleKeydown = (e) => {
+            if (e.key === 'Enter') {
+                handleOk();
+            } else if (e.key === 'Escape') {
+                handleCancel();
+            }
+        };
+        
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+        modal.addEventListener('click', handleBackdrop);
+        inputEl.addEventListener('keydown', handleKeydown);
+        
+        // 自动聚焦到输入框并选中默认值
+        setTimeout(() => {
+            inputEl.focus();
+            if (defaultValue) {
+                inputEl.select();
+            }
+        }, 100);
+    });
+}
+
+// 测试自定义弹窗功能
+function testCustomModals() {
+    console.log('测试自定义弹窗...');
+    customConfirm('这是一个测试确认弹窗，文字应该正常显示').then(result => {
+        console.log('确认弹窗结果:', result);
+        if (result) {
+            customPrompt('请输入测试内容:', '默认内容').then(input => {
+                console.log('输入弹窗结果:', input);
+                showToast('弹窗测试完成');
+            });
+        }
+    });
+}
+
 // 饼干管理功能
 class CookieManager {
     static STORAGE_KEY = 'forum_saved_cookies';
@@ -174,7 +312,7 @@ class CookieManager {
     }
     
     // 保存当前饼干
-    static saveCurrentCookie() {
+    static async saveCurrentCookie() {
         const currentCookie = this.getCurrentCookie();
         if (!currentCookie) {
             showToast('没有找到当前饼干');
@@ -197,7 +335,7 @@ class CookieManager {
         
         // 生成默认名称
         const defaultName = `饼干 ${currentCookie.substring(0, 8)}`;
-        const name = prompt('给这个饼干起个名字:', defaultName);
+        const name = await customPrompt('给这个饼干起个名字:', defaultName);
         
         if (name === null) return; // 用户取消
         
@@ -215,8 +353,9 @@ class CookieManager {
     }
     
     // 删除保存的饼干
-    static deleteSavedCookie(cookieId) {
-        if (!confirm('确定要删除这个饼干吗？')) return;
+    static async deleteSavedCookie(cookieId) {
+        const confirmed = await customConfirm('确定要删除这个饼干吗？');
+        if (!confirmed) return;
         
         const savedCookies = this.getSavedCookies();
         const filtered = savedCookies.filter(c => c.id !== cookieId);
@@ -226,8 +365,9 @@ class CookieManager {
     }
     
     // 使用保存的饼干
-    static useSavedCookie(cookieId) {
-        if (!confirm('确定要切换到这个饼干吗？页面将刷新。')) return;
+    static async useSavedCookie(cookieId) {
+        const confirmed = await customConfirm('确定要切换到这个饼干吗？页面将刷新。');
+        if (!confirmed) return;
         
         // 设置饼干
         const expiry = new Date();
@@ -241,7 +381,7 @@ class CookieManager {
     }
     
     // 生成新饼干
-    static generateNewCookie() {
+    static async generateNewCookie() {
         // 检查生成次数限制
         if (!this.canGenerateNewCookie()) {
             const remainingTime = this.getRemainingTimeForGeneration();
@@ -249,7 +389,8 @@ class CookieManager {
             return;
         }
         
-        if (!confirm('确定要生成新饼干吗？当前饼干将失效，页面将刷新。')) return;
+        const confirmed = await customConfirm('确定要生成新饼干吗？当前饼干将失效，页面将刷新。');
+        if (!confirmed) return;
         
         // 记录生成行为（使用临时ID，实际ID由服务器生成）
         this.recordCookieGeneration('temp_' + Date.now());
@@ -480,19 +621,41 @@ class CookieManager {
     }
     
     // 编辑饼干名称
-    static editCookieName(cookieId) {
+    static async editCookieName(cookieId) {
         const savedCookies = this.getSavedCookies();
         const cookie = savedCookies.find(c => c.id === cookieId);
         
         if (!cookie) return;
         
-        const newName = prompt('修改饼干名称:', cookie.name);
+        const newName = await customPrompt('修改饼干名称:', cookie.name);
         if (newName === null || newName.trim() === '') return;
         
         cookie.name = newName.trim();
         this.setSavedCookies(savedCookies);
         this.loadCookieData();
         showToast('名称已更新');
+    }
+    
+    // HTML调用的包装函数
+    static deleteSavedCookieWrapper(cookieId) {
+        this.deleteSavedCookie(cookieId).catch(error => {
+            console.error('删除饼干失败:', error);
+            showToast('删除饼干失败，请重试');
+        });
+    }
+    
+    static useSavedCookieWrapper(cookieId) {
+        this.useSavedCookie(cookieId).catch(error => {
+            console.error('切换饼干失败:', error);
+            showToast('切换饼干失败，请重试');
+        });
+    }
+    
+    static editCookieNameWrapper(cookieId) {
+        this.editCookieName(cookieId).catch(error => {
+            console.error('编辑饼干名称失败:', error);
+            showToast('编辑饼干名称失败，请重试');
+        });
     }
     
     // 加载饼干数据到界面
@@ -537,9 +700,9 @@ class CookieManager {
                         <div class="cookie-date">保存于: ${new Date(cookie.savedAt).toLocaleDateString()}</div>
                     </div>
                     <div class="cookie-actions">
-                        <button class="btn btn-primary btn-small" onclick="CookieManager.useSavedCookie('${cookie.id}')">使用</button>
-                        <button class="btn btn-secondary btn-small" onclick="CookieManager.editCookieName('${cookie.id}')">重命名</button>
-                        <button class="btn btn-back btn-small" onclick="CookieManager.deleteSavedCookie('${cookie.id}')">删除</button>
+                        <button class="btn btn-primary btn-small" onclick="CookieManager.useSavedCookieWrapper('${cookie.id}')">使用</button>
+                        <button class="btn btn-secondary btn-small" onclick="CookieManager.editCookieNameWrapper('${cookie.id}')">重命名</button>
+                        <button class="btn btn-back btn-small" onclick="CookieManager.deleteSavedCookieWrapper('${cookie.id}')">删除</button>
                     </div>
                 </div>
             `).join('');
@@ -615,7 +778,7 @@ function hideCookieManager() {
     }
 }
 
-function saveCookie() {
+async function saveCookie() {
     try {
         // 防止快速重复点击
         const btn = document.getElementById('saveCookieBtn');
@@ -628,7 +791,7 @@ function saveCookie() {
             }, 2000);
         }
         
-        CookieManager.saveCurrentCookie();
+        await CookieManager.saveCurrentCookie();
     } catch (error) {
         console.error('保存饼干失败:', error);
         showToast('保存饼干失败，请重试');
@@ -638,7 +801,7 @@ function saveCookie() {
     }
 }
 
-function newCookie() {
+async function newCookie() {
     try {
         // 防止快速重复点击
         const btn = document.getElementById('newCookieBtn');
@@ -649,7 +812,7 @@ function newCookie() {
             btn.textContent = '生成中...';
         }
         
-        CookieManager.generateNewCookie();
+        await CookieManager.generateNewCookie();
     } catch (error) {
         console.error('生成新饼干失败:', error);
         showToast('生成新饼干失败，请重试');
@@ -930,4 +1093,38 @@ document.addEventListener('DOMContentLoaded', function() {
             // 这里可以添加相对时间显示逻辑
         }
     });
-}); 
+});
+
+// 调试用：检查弹窗文字显示
+function debugModal() {
+    console.log('开始调试弹窗显示...');
+    
+    // 检查弹窗元素是否存在
+    const confirmModal = document.getElementById('customConfirmModal');
+    const promptModal = document.getElementById('customPromptModal');
+    
+    console.log('确认弹窗元素:', confirmModal);
+    console.log('输入弹窗元素:', promptModal);
+    
+    if (confirmModal) {
+        const title = document.getElementById('confirmTitle');
+        const message = document.getElementById('confirmMessage');
+        console.log('确认弹窗标题元素:', title);
+        console.log('确认弹窗消息元素:', message);
+        
+        if (title) {
+            console.log('标题样式:', window.getComputedStyle(title));
+        }
+        if (message) {
+            console.log('消息样式:', window.getComputedStyle(message));
+        }
+    }
+    
+    // 测试弹窗
+    customConfirm('这是测试文字，应该水平显示').then(result => {
+        console.log('测试完成，结果:', result);
+    });
+}
+
+// 全局暴露调试函数
+window.debugModal = debugModal;

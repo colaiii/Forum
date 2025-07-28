@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}校园网匿名论坛{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20250128-4">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 </head>
 <body>
@@ -112,6 +112,229 @@
                         <li><strong>安全验证</strong>：导入饼干需要验证是否在系统中注册</li>
                         <li><strong>有效期追踪</strong>：所有饼干都有明确的创建和过期时间</li>
                     </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自定义确认弹窗 -->
+    <div id="customConfirmModal" class="modal" style="display: none;">
+        <div class="modal-content" onclick="event.stopPropagation()" style="
+            background: white;
+            border-radius: 12px;
+            max-width: 400px;
+            margin: 20% auto;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            position: relative;
+            writing-mode: horizontal-tb !important;
+            direction: ltr !important;
+        ">
+            <div style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 20px;
+                margin: 0;
+                border-radius: 12px 12px 0 0;
+                display: block;
+                writing-mode: horizontal-tb !important;
+                direction: ltr !important;
+                text-align: center;
+            ">
+                <h3 id="confirmTitle" style="
+                    margin: 0;
+                    font-size: 18px;
+                    font-weight: 600;
+                    display: block;
+                    text-align: center;
+                    line-height: 1.4;
+                    writing-mode: horizontal-tb !important;
+                    direction: ltr !important;
+                    font-family: 'Microsoft YaHei', Arial, sans-serif !important;
+                    color: white;
+                ">确认操作</h3>
+            </div>
+            <div style="
+                padding: 24px;
+                display: block;
+                writing-mode: horizontal-tb !important;
+                direction: ltr !important;
+            ">
+                <p id="confirmMessage" style="
+                    margin: 0 0 24px 0;
+                    font-size: 16px;
+                    color: #2c3e50;
+                    display: block;
+                    text-align: center;
+                    line-height: 1.6;
+                    writing-mode: horizontal-tb !important;
+                    direction: ltr !important;
+                    font-family: 'Microsoft YaHei', Arial, sans-serif !important;
+                ">确定要执行此操作吗？</p>
+                <div style="
+                    display: flex;
+                    gap: 12px;
+                    justify-content: center;
+                    margin-top: 20px;
+                    writing-mode: horizontal-tb !important;
+                    direction: ltr !important;
+                ">
+                    <button class="btn btn-back" id="confirmCancel" style="
+                        min-width: 100px;
+                        padding: 12px 20px;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 15px;
+                        display: inline-block;
+                        text-align: center;
+                        line-height: 1.4;
+                        writing-mode: horizontal-tb !important;
+                        direction: ltr !important;
+                        font-family: 'Microsoft YaHei', Arial, sans-serif !important;
+                        background-color: #95a5a6;
+                        color: white;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                    ">取消</button>
+                    <button class="btn btn-primary" id="confirmOk" style="
+                        min-width: 100px;
+                        padding: 12px 20px;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 15px;
+                        display: inline-block;
+                        text-align: center;
+                        line-height: 1.4;
+                        writing-mode: horizontal-tb !important;
+                        direction: ltr !important;
+                        font-family: 'Microsoft YaHei', Arial, sans-serif !important;
+                        background-color: #3498db;
+                        color: white;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                    ">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自定义输入弹窗 -->
+    <div id="customPromptModal" class="modal" style="display: none;">
+        <div class="modal-content" onclick="event.stopPropagation()" style="
+            background: white;
+            border-radius: 12px;
+            max-width: 400px;
+            margin: 20% auto;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            position: relative;
+            writing-mode: horizontal-tb !important;
+            direction: ltr !important;
+        ">
+            <div style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 20px;
+                margin: 0;
+                border-radius: 12px 12px 0 0;
+                display: block;
+                writing-mode: horizontal-tb !important;
+                direction: ltr !important;
+                text-align: center;
+            ">
+                <h3 id="promptTitle" style="
+                    margin: 0;
+                    font-size: 18px;
+                    font-weight: 600;
+                    display: block;
+                    text-align: center;
+                    line-height: 1.4;
+                    writing-mode: horizontal-tb !important;
+                    direction: ltr !important;
+                    font-family: 'Microsoft YaHei', Arial, sans-serif !important;
+                    color: white;
+                ">输入信息</h3>
+            </div>
+            <div style="
+                padding: 24px;
+                display: block;
+                writing-mode: horizontal-tb !important;
+                direction: ltr !important;
+            ">
+                <p id="promptMessage" style="
+                    margin: 0 0 16px 0;
+                    font-size: 16px;
+                    color: #2c3e50;
+                    display: block;
+                    text-align: center;
+                    line-height: 1.6;
+                    writing-mode: horizontal-tb !important;
+                    direction: ltr !important;
+                    font-family: 'Microsoft YaHei', Arial, sans-serif !important;
+                ">请输入：</p>
+                <input type="text" id="promptInput" placeholder="" style="
+                    width: 100%;
+                    padding: 14px 16px;
+                    border: 2px solid #e1e8ed;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    margin-bottom: 20px;
+                    display: block;
+                    writing-mode: horizontal-tb !important;
+                    direction: ltr !important;
+                    font-family: 'Microsoft YaHei', Arial, sans-serif !important;
+                    box-sizing: border-box;
+                    transition: border-color 0.3s ease;
+                    background-color: #f8f9fa;
+                ">
+                <div style="
+                    display: flex;
+                    gap: 12px;
+                    justify-content: center;
+                    margin-top: 20px;
+                    writing-mode: horizontal-tb !important;
+                    direction: ltr !important;
+                ">
+                    <button class="btn btn-secondary" id="promptCancel" style="
+                        min-width: 100px;
+                        padding: 12px 20px;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 15px;
+                        display: inline-block;
+                        text-align: center;
+                        line-height: 1.4;
+                        writing-mode: horizontal-tb !important;
+                        direction: ltr !important;
+                        font-family: 'Microsoft YaHei', Arial, sans-serif !important;
+                        background-color: #95a5a6;
+                        color: white;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                    ">取消</button>
+                    <button class="btn btn-primary" id="promptOk" style="
+                        min-width: 100px;
+                        padding: 12px 20px;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 15px;
+                        display: inline-block;
+                        text-align: center;
+                        line-height: 1.4;
+                        writing-mode: horizontal-tb !important;
+                        direction: ltr !important;
+                        font-family: 'Microsoft YaHei', Arial, sans-serif !important;
+                        background-color: #3498db;
+                        color: white;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                    ">确定</button>
                 </div>
             </div>
         </div>
@@ -232,7 +455,7 @@
         </div>
     </footer>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=20250128-3"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html> 

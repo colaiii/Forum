@@ -1518,3 +1518,220 @@ body {
         font-size: 12px;
     }
 } 
+
+/* 自定义确认和输入弹窗样式 - 重写版本 */
+.custom-confirm-modal,
+.custom-prompt-modal {
+    background: white;
+    border-radius: 8px;
+    max-width: 400px;
+    margin: 20% auto;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.custom-confirm-modal *,
+.custom-prompt-modal * {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    text-orientation: mixed;
+    writing-mode: horizontal-tb;
+    direction: ltr;
+}
+
+.custom-confirm-modal .modal-header,
+.custom-prompt-modal .modal-header {
+    background-color: #3498db;
+    color: white;
+    padding: 15px 20px;
+    margin: 0;
+    border-radius: 8px 8px 0 0;
+    display: block;
+}
+
+.custom-confirm-modal .modal-header h3,
+.custom-prompt-modal .modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: normal;
+    display: block;
+    text-align: left;
+    line-height: 1.4;
+}
+
+.custom-confirm-modal .modal-body,
+.custom-prompt-modal .modal-body {
+    padding: 20px;
+    display: block;
+}
+
+.custom-confirm-modal .modal-body p,
+.custom-prompt-modal .modal-body p {
+    margin: 0 0 20px 0;
+    font-size: 14px;
+    color: #333;
+    display: block;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.confirm-actions,
+.prompt-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.custom-prompt-modal .form-control {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.custom-prompt-modal .form-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.confirm-actions .btn,
+.prompt-actions .btn {
+    min-width: 80px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-block;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.confirm-actions .btn:hover,
+.prompt-actions .btn:hover {
+    opacity: 0.9;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .custom-confirm-modal,
+    .custom-prompt-modal {
+        max-width: 90%;
+        margin: 30% auto;
+    }
+    
+    .custom-confirm-modal .modal-header,
+    .custom-prompt-modal .modal-header {
+        padding: 12px 15px;
+    }
+    
+    .custom-confirm-modal .modal-header h3,
+    .custom-prompt-modal .modal-header h3 {
+        font-size: 16px;
+    }
+    
+    .custom-confirm-modal .modal-body,
+    .custom-prompt-modal .modal-body {
+        padding: 15px;
+    }
+    
+    .custom-confirm-modal .modal-body p,
+    .custom-prompt-modal .modal-body p {
+        font-size: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .confirm-actions,
+    .prompt-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .confirm-actions .btn,
+    .prompt-actions .btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+    }
+    
+    .custom-prompt-modal .form-control {
+        padding: 12px;
+        font-size: 16px;
+    }
+} 
+
+/* 移动端弹窗适配 - 针对内联样式弹窗 */
+@media (max-width: 768px) {
+    #customConfirmModal .modal-content,
+    #customPromptModal .modal-content {
+        max-width: 85% !important;
+        margin: 25% auto !important;
+        border-radius: 16px !important;
+    }
+    
+    #customConfirmModal h3,
+    #customPromptModal h3 {
+        font-size: 16px !important;
+        padding: 16px !important;
+    }
+    
+    #customConfirmModal p,
+    #customPromptModal p {
+        font-size: 15px !important;
+        padding: 0 8px !important;
+    }
+    
+    #customConfirmModal > div > div:first-child,
+    #customPromptModal > div > div:first-child {
+        border-radius: 16px 16px 0 0 !important;
+    }
+    
+    #customConfirmModal > div > div:last-child,
+    #customPromptModal > div > div:last-child {
+        padding: 20px !important;
+    }
+    
+    #customConfirmModal div[style*="display: flex"],
+    #customPromptModal div[style*="display: flex"] {
+        flex-direction: column !important;
+        gap: 12px !important;
+        margin-top: 24px !important;
+    }
+    
+    #customConfirmModal button,
+    #customPromptModal button {
+        width: 100% !important;
+        padding: 14px !important;
+        font-size: 16px !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+    }
+    
+    #promptInput {
+        font-size: 16px !important;
+        padding: 16px !important;
+        border-radius: 10px !important;
+        margin-bottom: 16px !important;
+    }
+    
+    /* 优化触控体验 */
+    #customConfirmModal button:active,
+    #customPromptModal button:active {
+        transform: scale(0.98) !important;
+        opacity: 0.8 !important;
+    }
+    
+    /* 输入框聚焦效果 */
+    #promptInput:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+        background-color: white !important;
+    }
+} 
