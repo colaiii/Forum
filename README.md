@@ -48,6 +48,8 @@
 
 ## 🚀 快速开始
 
+> 💡 **新用户提示**：首次部署后建议运行 `docker compose exec web python demo.py` 生成演示数据，立即体验完整功能！
+
 ### 环境要求
 - Docker 20.10+
 - Docker Compose 2.0+
@@ -68,9 +70,34 @@ docker compose up -d
 # 4. 等待服务就绪 (约30秒)
 docker compose logs -f web
 
-# 5. 访问论坛
+# 5. 生成演示数据 (可选，推荐首次部署时使用)
+docker compose exec web python demo.py
+
+# 6. 访问论坛
 浏览器打开: http://localhost:8080
 ```
+
+### 🎯 快速体验
+如果你想立即体验论坛的完整功能，建议在部署后运行演示数据脚本：
+
+```bash
+# 生成丰富的演示内容
+docker compose exec web python demo.py
+```
+
+**演示数据包含：**
+- 📌 1个置顶欢迎串
+- 🧵 5个不同主题的讨论串（技术、校园、学习、娱乐、求助）
+- 💬 丰富的回复内容和引用关系
+- 🎨 Markdown格式化内容
+- 🍪 多样化的饼干用户
+
+**预览效果：**
+- ✅ 置顶串功能展示
+- ✅ 搜索功能测试
+- ✅ 引用回复机制
+- ✅ 饼干系统演示
+- ✅ Markdown渲染效果
 
 ### 开发环境搭建
 
@@ -129,6 +156,7 @@ docker compose exec web bash
 docker compose down --rmi all --volumes
 
 # 管理工具常用命令
+docker compose exec web python demo.py                   # 生成演示数据
 docker compose exec web python admin_tools.py stats      # 查看统计
 docker compose exec web python admin_tools.py list       # 列出串
 docker compose exec web python admin_tools.py cleanup --days 30  # 清理旧串
@@ -167,7 +195,7 @@ Forum/
 ├── docker-compose.yml      # 容器编排
 ├── Dockerfile             # 应用镜像
 ├── requirements.txt       # Python依赖
-├── demo.py               # 演示数据生成
+├── demo.py               # 演示数据生成脚本（创建丰富的示例内容）
 ├── admin_tools.py        # 论坛管理工具脚本（支持串管理、置顶管理、统计分析）
 └── wsgi.py               # 应用入口
 ```
