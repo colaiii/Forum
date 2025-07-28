@@ -153,7 +153,13 @@
 class AutoRefresh {
     constructor() {
         this.refreshInterval = 30000; // 30秒检查一次
-        this.lastThreadId = {{ threads.items[0].id if threads.items else 0 }};
+        // 使用当前页面所有串中的最大ID，避免排序不一致的问题
+        {% if threads.items %}
+        const threadIds = [{{ threads.items | map(attribute='id') | list | join(',') }}];
+        this.lastThreadId = Math.max(...threadIds);
+        {% else %}
+        this.lastThreadId = 0;
+        {% endif %}
         this.isRefreshing = false;
         this.isPageVisible = true;
         this.intervalId = null;
