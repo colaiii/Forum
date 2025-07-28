@@ -34,22 +34,22 @@
 </div>
 
 <!-- 搜索结果统计 -->
+{% if query %}
 <div class="search-stats">
-    {% if query %}
-        <p class="search-info">
-            搜索 "<strong>{{ query }}</strong>" 
-            {% if search_type == 'title' %}(仅标题)
-            {% elif search_type == 'content' %}(仅内容)
-            {% else %}(全部)
-            {% endif %}
-            {% if results %}
-                ，共找到 <strong>{{ results.total }}</strong> 个结果
-            {% else %}
-                ，未找到相关结果
-            {% endif %}
-        </p>
-    {% endif %}
+    <p class="search-info">
+        搜索 "<strong>{{ query }}</strong>" 
+        {% if search_type == 'title' %}(仅标题)
+        {% elif search_type == 'content' %}(仅内容)
+        {% else %}(全部)
+        {% endif %}
+        {% if results %}
+            ，共找到 <strong>{{ results.total }}</strong> 个结果
+        {% else %}
+            ，未找到相关结果
+        {% endif %}
+    </p>
 </div>
+{% endif %}
 
 <!-- 搜索结果列表 -->
 {% if results and results.items %}

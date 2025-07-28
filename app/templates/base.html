@@ -74,6 +74,7 @@
                     <h3>导入饼干</h3>
                     <div class="security-notice">
                         <p><strong>🔒 安全提示：</strong>只能导入已在系统中注册且有效的饼干ID。</p>
+                        <p><strong>⏱️ 速率限制：</strong>为防止暴力破解，每分钟最多尝试3次导入。</p>
                     </div>
                     <div class="form-group">
                         <label for="importCookieId">饼干ID（16位）：</label>
@@ -82,6 +83,11 @@
                     <div class="form-group">
                         <label for="importCookieName">备注名称：</label>
                         <input type="text" id="importCookieName" placeholder="给这个饼干起个名字">
+                    </div>
+                    <div class="import-limits" id="importLimits">
+                        <div class="limit-info">
+                            <span class="limit-label">导入尝试次数：加载中...</span>
+                        </div>
                     </div>
                     <button class="btn btn-primary" onclick="importCookie()">验证并导入</button>
                 </div>
@@ -102,8 +108,6 @@
                     <ul>
                         <li><strong>收藏限制</strong>：每个用户最多只能收藏3个饼干身份</li>
                         <li><strong>生成限制</strong>：24小时内最多只能生成3个新饼干</li>
-                        <li><strong>防滥用</strong>：超出限制时系统会显示剩余等待时间</li>
-                        <li><strong>合理使用</strong>：请珍惜每个饼干身份，避免频繁更换</li>
                         <li><strong>自动清理</strong>：生成记录会在24小时后自动清除</li>
                         <li><strong>安全验证</strong>：导入饼干需要验证是否在系统中注册</li>
                         <li><strong>有效期追踪</strong>：所有饼干都有明确的创建和过期时间</li>
@@ -125,7 +129,7 @@
                     <h3>🍪 饼干匿名系统</h3>
                     <ul>
                         <li><strong>自动分配</strong>：首次访问自动获得16位匿名ID（饼干）</li>
-                        <li><strong>有效期</strong>：默认7天，活跃用户可自动延期</li>
+                        <li><strong>有效期</strong>：默认7天</li>
                         <li><strong>一致性</strong>：同一饼干在所有串中保持统一标识</li>
                         <li><strong>隐私保护</strong>：基于时间戳生成，不记录真实身份信息</li>
                         <li><strong>视觉区分</strong>：不同饼干显示不同颜色，便于识别</li>
@@ -133,6 +137,8 @@
                         <li><strong>收藏管理</strong>：可保存最多3个饼干身份，随时切换使用</li>
                         <li><strong>本地存储</strong>：收藏的饼干仅保存在浏览器本地，保护隐私</li>
                         <li><strong>生成限制</strong>：24小时内最多生成3个新饼干，防止滥用</li>
+                        <li><strong>导入限制</strong>：每分钟最多尝试3次导入，防止暴力破解</li>
+                        <li><strong>安全验证</strong>：只能导入已在系统中注册且有效的饼干ID</li>
                     </ul>
                 </div>
                 
@@ -144,19 +150,27 @@
                         <li><strong>图片上传</strong>：支持PNG/JPG/GIF/WebP，单文件最大16MB</li>
                         <li><strong>内容质量</strong>：鼓励有价值的讨论，禁止无意义灌水</li>
                         <li><strong>校园相关</strong>：优先讨论校园生活、学习、社交等话题</li>
-                        <li><strong>频率限制</strong>：同一饼干10分钟内最多发3串</li>
+                        <li><strong>频率限制</strong>：同一饼干1分钟内最多发3串，防止刷屏</li>
                     </ul>
                 </div>
                 
                 <div class="rules-section">
                     <h3>💬 回复与互动规则</h3>
                     <ul>
-                        <li><strong>引用格式</strong>：使用 <code>>>编号</code> 引用其他回复</li>
                         <li><strong>友善交流</strong>：理性讨论，尊重不同观点</li>
                         <li><strong>主题相关</strong>：回复内容应与串主题相关</li>
                         <li><strong>图文并茂</strong>：支持上传图片丰富回复内容</li>
-                        <li><strong>禁止刷屏</strong>：避免连续发表类似内容</li>
+                        <li><strong>频率限制</strong>：同一饼干1分钟内最多回复5次，防止刷屏</li>
                         <li><strong>建设性回复</strong>：鼓励有意义的补充和讨论</li>
+                    </ul>
+                </div>
+                
+                <div class="rules-section">
+                    <h3>🔍 搜索功能使用</h3>
+                    <ul>
+                        <li><strong>搜索入口</strong>：主页搜索框或导航栏"搜索"链接</li>
+                        <li><strong>全部搜索</strong>：同时搜索串标题和内容中的关键词</li>
+                        <li><strong>精确搜索</strong>：选择"仅标题"或"仅内容"进行精确搜索</li>
                     </ul>
                 </div>
                 
@@ -182,20 +196,11 @@
                         <li><strong>商业广告</strong>：未经允许的商业推广、营销活动</li>
                         <li><strong>技术破坏</strong>：恶意脚本、病毒链接、服务器攻击</li>
                         <li><strong>虚假信息</strong>：故意传播谣言、假消息、误导信息</li>
+                        <li><strong>恶意搜索</strong>：频繁无意义搜索，影响系统性能</li>
+                        <li><strong>饼干滥用</strong>：恶意尝试导入他人饼干，暴力破解</li>
                     </ul>
                 </div>
                 
-                <div class="rules-section">
-                    <h3>⚖️ 违规处理机制</h3>
-                    <ul>
-                        <li><strong>内容删除</strong>：违规内容将被立即删除</li>
-                        <li><strong>饼干限制</strong>：严重违规将限制饼干使用权限</li>
-                        <li><strong>IP封禁</strong>：恶意行为可能导致IP地址被封禁</li>
-                        <li><strong>举报机制</strong>：鼓励用户举报违规行为</li>
-                        <li><strong>申诉渠道</strong>：提供合理的申诉和复议机制</li>
-                        <li><strong>透明度</strong>：处理结果将适当公示警示他人</li>
-                    </ul>
-                </div>
 
                 <div class="rules-section">
                     <h3>📱 Markdown语法指南</h3>
@@ -214,9 +219,7 @@
                 <div class="rules-footer">
                     <p><strong>🎯 论坛愿景</strong></p>
                     <p>校园网匿名论坛致力于为师生提供一个安全、自由、高质量的交流平台。我们相信匿名机制能够鼓励真实表达，促进开放讨论，同时也需要每位用户的自律和责任心来维护社区秩序。</p>
-                    <p style="margin-top: 10px;"><strong>📞 联系方式</strong></p>
-                    <p>如有疑问或建议，请通过站内反馈功能联系管理团队。</p>
-                    <p style="margin-top: 15px; color: #666; font-size: 0.9em;">规则最后更新：2025年1月 | 解释权归论坛管理团队所有</p>
+                    <p style="margin-top: 15px; color: #666; font-size: 0.9em;">规则最后更新：2025年8月 |  解释权归论坛管理团队所有</p>
                 </div>
             </div>
         </div>

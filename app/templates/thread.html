@@ -125,11 +125,9 @@ function hideReplyForm() {
 // 引用回复
 function quoteReply(replyId, cookieDisplay) {
     document.getElementById('quoteId').value = replyId;
-    const content = document.getElementById('replyContent');
-    content.value = `>>${replyId} ${cookieDisplay}\n`;
     showReplyForm();
+    const content = document.getElementById('replyContent');
     content.focus();
-    content.setSelectionRange(content.value.length, content.value.length);
 }
 
 // 提交回复

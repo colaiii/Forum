@@ -1271,3 +1271,46 @@ body {
         width: 200px;
     }
 } 
+
+/* 导入限制显示样式 */
+.import-limits {
+    background: #e8f4fd;
+    border: 1px solid #b8daff;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.import-limits .limit-info {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.import-limits .limit-label {
+    color: #004085;
+    font-weight: 500;
+}
+
+.import-limits.rate-limited {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.import-limits.rate-limited .limit-label {
+    color: #721c24;
+}
+
+/* 导入按钮禁用状态 */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+}
+
+.btn:disabled:hover {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+} 

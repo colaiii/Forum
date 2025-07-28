@@ -333,8 +333,21 @@ class CookieManager {
             
             const result = await response.json();
             
+            // 更新速率限制信息显示
+            if (result.rate_limit) {
+                this.updateRateLimitDisplay(result.rate_limit);
+            }
+            
             if (!result.success) {
-                showToast(result.error || '饼干验证失败');
+                // 检查是否是速率限制错误
+                if (response.status === 429) {
+                    const waitTime = result.rate_limit?.wait_time || 60;
+                    showToast(`导入尝试过于频繁，请等待 ${waitTime} 秒后再试`);
+                    // 显示倒计时
+                    this.showRateLimitCountdown(waitTime);
+                } else {
+                    showToast(result.error || '饼干验证失败');
+                }
                 return;
             }
             
@@ -362,6 +375,107 @@ class CookieManager {
         } catch (error) {
             console.error('验证饼干时出错:', error);
             showToast('网络错误，请检查连接后重试');
+        }
+    }
+    
+    // 更新速率限制显示
+    static updateRateLimitDisplay(rateLimitInfo) {
+        const importLimitsEl = document.getElementById('importLimits');
+        if (!importLimitsEl) return;
+        
+        const { current_attempts, max_attempts, remaining_attempts, window_minutes, reset_time } = rateLimitInfo;
+        
+        let limitText = `导入尝试次数：${current_attempts}/${max_attempts}（${window_minutes}分钟内）`;
+        
+        // 移除之前的样式类
+        importLimitsEl.classList.remove('rate-limited');
+        
+        if (remaining_attempts === 0) {
+            limitText += ' - 已达上限';
+            importLimitsEl.classList.add('rate-limited');
+            if (reset_time) {
+                const resetDate = new Date(reset_time * 1000);
+                const now = new Date();
+                const waitSeconds = Math.max(0, Math.ceil((resetDate - now) / 1000));
+                limitText += `，${waitSeconds}秒后重置`;
+            }
+            
+            // 禁用导入按钮
+            const importBtn = document.querySelector('button[onclick="importCookie()"]');
+            if (importBtn && !importBtn.disabled) {
+                importBtn.disabled = true;
+                importBtn.textContent = '已达尝试上限';
+            }
+        } else {
+            limitText += `，还可尝试${remaining_attempts}次`;
+            
+            // 启用导入按钮
+            const importBtn = document.querySelector('button[onclick="importCookie()"]');
+            if (importBtn && importBtn.disabled && importBtn.textContent.includes('已达尝试上限')) {
+                importBtn.disabled = false;
+                importBtn.textContent = '验证并导入';
+            }
+        }
+        
+        importLimitsEl.innerHTML = `
+            <div class="limit-info">
+                <span class="limit-label">${limitText}</span>
+            </div>
+        `;
+    }
+    
+    // 显示速率限制倒计时
+    static showRateLimitCountdown(waitTime) {
+        const importBtn = document.querySelector('#importCookie') || document.querySelector('button[onclick="importCookie()"]');
+        if (!importBtn) return;
+        
+        let remaining = waitTime;
+        importBtn.disabled = true;
+        importBtn.textContent = `等待 ${remaining} 秒`;
+        
+        const countdown = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+                clearInterval(countdown);
+                importBtn.disabled = false;
+                importBtn.textContent = '验证并导入';
+                // 刷新速率限制信息
+                this.loadRateLimitInfo();
+            } else {
+                importBtn.textContent = `等待 ${remaining} 秒`;
+            }
+        }, 1000);
+    }
+    
+    // 加载速率限制信息
+    static async loadRateLimitInfo() {
+        try {
+            const response = await fetch('/api/cookie/import_rate_info');
+            const result = await response.json();
+            
+            if (result.success && result.rate_limit) {
+                this.updateRateLimitDisplay(result.rate_limit);
+            } else {
+                // API调用成功但没有返回期望的数据，显示默认信息
+                this.showDefaultRateLimitInfo();
+            }
+        } catch (error) {
+            console.error('获取速率限制信息失败:', error);
+            // API调用失败，显示默认信息
+            this.showDefaultRateLimitInfo();
+        }
+    }
+    
+    // 显示默认的速率限制信息
+    static showDefaultRateLimitInfo() {
+        const importLimitsEl = document.getElementById('importLimits');
+        if (importLimitsEl) {
+            importLimitsEl.classList.remove('rate-limited');
+            importLimitsEl.innerHTML = `
+                <div class="limit-info">
+                    <span class="limit-label">导入尝试次数：0/3（1分钟内），还可尝试3次</span>
+                </div>
+            `;
         }
     }
     
@@ -473,6 +587,12 @@ class CookieManager {
                 newCookieBtn.textContent = '生成新饼干';
                 newCookieBtn.title = '';
             }
+        }
+        
+        // 如果是在饼干管理器中，加载速率限制信息
+        const importLimitsEl = document.getElementById('importLimits');
+        if (importLimitsEl) {
+            this.loadRateLimitInfo();
         }
     }
 }

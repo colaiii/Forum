@@ -44,6 +44,21 @@ def create_thread():
         # 获取饼干ID
         cookie_id = CookieManager.get_or_create_cookie(request)
         
+        # 检查发串频率限制
+        is_allowed, current_attempts, wait_time = CookieManager.check_thread_rate_limit(cookie_id)
+        
+        if not is_allowed:
+            return jsonify({
+                'error': f'发串过于频繁，请等待 {wait_time} 秒后再试（1分钟内最多发3串）',
+                'rate_limit': {
+                    'exceeded': True,
+                    'current_attempts': current_attempts,
+                    'max_attempts': CookieManager.THREAD_RATE_LIMIT,
+                    'wait_time': wait_time,
+                    'window_minutes': CookieManager.THREAD_RATE_WINDOW // 60
+                }
+            }), 429  # Too Many Requests
+        
         # 获取表单数据
         title = request.form.get('title', '').strip()
         content = request.form.get('content', '').strip()
@@ -84,6 +99,9 @@ def create_thread():
         db.session.add(thread)
         db.session.commit()
         
+        # 记录发串行为（在成功创建后）
+        CookieManager.record_thread_creation(cookie_id)
+        
         return jsonify({
             'success': True,
             'thread_id': thread.id,
@@ -102,6 +120,21 @@ def create_reply(thread_id):
         
         # 获取饼干ID
         cookie_id = CookieManager.get_or_create_cookie(request)
+        
+        # 检查回复频率限制
+        is_allowed, current_attempts, wait_time = CookieManager.check_reply_rate_limit(cookie_id)
+        
+        if not is_allowed:
+            return jsonify({
+                'error': f'回复过于频繁，请等待 {wait_time} 秒后再试（1分钟内最多回复5次）',
+                'rate_limit': {
+                    'exceeded': True,
+                    'current_attempts': current_attempts,
+                    'max_attempts': CookieManager.REPLY_RATE_LIMIT,
+                    'wait_time': wait_time,
+                    'window_minutes': CookieManager.REPLY_RATE_WINDOW // 60
+                }
+            }), 429  # Too Many Requests
         
         # 获取表单数据
         content = request.form.get('content', '').strip()
@@ -145,6 +178,9 @@ def create_reply(thread_id):
         thread.last_reply_at = datetime.utcnow()
         
         db.session.commit()
+        
+        # 记录回复行为（在成功创建后）
+        CookieManager.record_reply_creation(cookie_id)
         
         return jsonify({
             'success': True,
@@ -269,6 +305,27 @@ def validate_cookie():
 def check_cookie_registration():
     """检查饼干是否在系统中注册"""
     try:
+        # 获取客户端IP
+        client_ip = request.environ.get('HTTP_X_REAL_IP', request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr))
+        if ',' in client_ip:
+            client_ip = client_ip.split(',')[0].strip()
+        
+        # 检查速率限制
+        is_allowed, current_attempts, wait_time = CookieManager.check_import_rate_limit(client_ip)
+        
+        if not is_allowed:
+            return jsonify({
+                'success': False,
+                'error': f'导入尝试过于频繁，请等待 {wait_time} 秒后再试',
+                'rate_limit': {
+                    'exceeded': True,
+                    'current_attempts': current_attempts,
+                    'max_attempts': CookieManager.IMPORT_RATE_LIMIT,
+                    'wait_time': wait_time,
+                    'window_minutes': CookieManager.IMPORT_RATE_WINDOW // 60
+                }
+            }), 429  # Too Many Requests
+        
         data = request.get_json()
         cookie_id = data.get('cookie_id', '').strip()
         
@@ -283,20 +340,28 @@ def check_cookie_registration():
         if not re.match(r'^[a-fA-F0-9]{16}$', cookie_id):
             return jsonify({'error': '饼干ID格式无效'}), 400
         
+        # 记录这次尝试（在验证格式后）
+        CookieManager.record_import_attempt(client_ip)
+        
         is_registered = CookieManager.is_cookie_registered(cookie_id)
         is_valid = CookieManager.is_valid_cookie(cookie_id) if is_registered else False
         cookie_info = CookieManager.get_cookie_info(cookie_id) if is_registered else None
         
+        # 获取更新后的速率限制信息
+        rate_info = CookieManager.get_import_attempts_info(client_ip)
+        
         if not is_registered:
             return jsonify({
                 'success': False,
-                'error': '此饼干未在系统中注册，无法导入'
+                'error': '此饼干未在系统中注册，无法导入',
+                'rate_limit': rate_info
             }), 400
         
         if not is_valid:
             return jsonify({
                 'success': False,
-                'error': '此饼干已过期或无效，无法导入'
+                'error': '此饼干已过期或无效，无法导入',
+                'rate_limit': rate_info
             }), 400
         
         return jsonify({
@@ -305,11 +370,68 @@ def check_cookie_registration():
             'is_registered': is_registered,
             'is_valid': is_valid,
             'cookie_info': cookie_info,
-            'message': '饼干验证通过，可以导入'
+            'message': '饼干验证通过，可以导入',
+            'rate_limit': rate_info
         })
         
     except Exception as e:
         return jsonify({'error': f'检查失败: {str(e)}'}), 500
+
+@api_bp.route('/cookie/import_rate_info', methods=['GET'])
+def get_import_rate_info():
+    """获取导入饼干的速率限制信息"""
+    try:
+        # 获取客户端IP
+        client_ip = request.environ.get('HTTP_X_REAL_IP', request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr))
+        if ',' in client_ip:
+            client_ip = client_ip.split(',')[0].strip()
+        
+        # 获取速率限制信息
+        rate_info = CookieManager.get_import_attempts_info(client_ip)
+        
+        return jsonify({
+            'success': True,
+            'rate_limit': rate_info
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'获取信息失败: {str(e)}'}), 500
+
+@api_bp.route('/cookie/thread_rate_info', methods=['GET'])
+def get_thread_rate_info():
+    """获取发串频率限制信息"""
+    try:
+        # 获取饼干ID
+        cookie_id = CookieManager.get_or_create_cookie(request)
+        
+        # 获取发串频率限制信息
+        rate_info = CookieManager.get_thread_rate_info(cookie_id)
+        
+        return jsonify({
+            'success': True,
+            'rate_limit': rate_info
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'获取信息失败: {str(e)}'}), 500
+
+@api_bp.route('/cookie/reply_rate_info', methods=['GET'])
+def get_reply_rate_info():
+    """获取回复频率限制信息"""
+    try:
+        # 获取饼干ID
+        cookie_id = CookieManager.get_or_create_cookie(request)
+        
+        # 获取回复频率限制信息
+        rate_info = CookieManager.get_reply_rate_info(cookie_id)
+        
+        return jsonify({
+            'success': True,
+            'rate_limit': rate_info
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'获取信息失败: {str(e)}'}), 500
 
 @api_bp.route('/cookie/stats', methods=['GET'])
 def get_cookie_stats():
