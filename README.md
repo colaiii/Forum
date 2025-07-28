@@ -45,7 +45,7 @@
 ```bash
 # 1. 克隆项目
 git clone <your-repository-url>
-cd competition
+cd Forum
 
 # 2. 启动服务
 docker-compose up -d
@@ -78,7 +78,7 @@ python wsgi.py
 ## 📁 项目结构
 
 ```
-competition/
+Forum/
 ├── app/                      # 核心应用模块
 │   ├── __init__.py          # 应用工厂和配置
 │   ├── models/              # 数据模型
