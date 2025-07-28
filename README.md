@@ -406,15 +406,13 @@ docker stats
 4. 推送分支: `git push origin feature/新功能`
 5. 提交Pull Request
 
-## 📄 许可证
 
-本项目采用MIT许可证 - 详情请参阅 [LICENSE](LICENSE) 文件
 
 ## 📞 支持与反馈
 
-- 项目地址: [GitHub Repository]
-- 问题反馈: [Issues页面]
-- 开发团队: Campus Forum Team
+- 项目地址: https://github.com/colaiii/Forum
+- 问题反馈: https://github.com/colaiii/Forum/issues
+- 开发团队: Starumi
 
 ---
 
