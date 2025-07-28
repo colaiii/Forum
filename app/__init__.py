@@ -16,7 +16,7 @@ def create_app():
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:password@localhost:5432/forum')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['UPLOAD_FOLDER'] = 'uploads'
+    app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')  # 使用绝对路径
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
     
     # 初始化扩展
@@ -48,10 +48,22 @@ def create_app():
         return Markup(result)
     
     # 添加静态文件路由
-    @app.route('/uploads/<filename>')
+    @app.route('/uploads/<path:filename>')
     def uploaded_file(filename):
-        from flask import send_from_directory
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+        from flask import send_from_directory, abort
+        
+        # 确保文件存在
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if not os.path.exists(file_path):
+            abort(404)
+        
+        # 设置正确的Content-Type
+        response = send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+        
+        # 添加缓存头
+        response.headers['Cache-Control'] = 'public, max-age=3600'
+        
+        return response
     
     # 创建数据库表
     with app.app_context():
@@ -59,6 +71,13 @@ def create_app():
         db.create_all()
     
     # 创建上传目录
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    upload_dir = app.config['UPLOAD_FOLDER']
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    # 设置目录权限
+    try:
+        os.chmod(upload_dir, 0o755)
+    except:
+        pass
     
     return app 
