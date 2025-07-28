@@ -599,23 +599,76 @@ class CookieManager {
 
 // 全局函数供HTML调用
 function showCookieManager() {
-    CookieManager.show();
+    try {
+        CookieManager.show();
+    } catch (error) {
+        console.error('显示饼干管理器失败:', error);
+        showToast('饼干管理器加载失败，请刷新页面重试');
+    }
 }
 
 function hideCookieManager() {
-    CookieManager.hide();
+    try {
+        CookieManager.hide();
+    } catch (error) {
+        console.error('隐藏饼干管理器失败:', error);
+    }
 }
 
 function saveCookie() {
-    CookieManager.saveCurrentCookie();
+    try {
+        // 防止快速重复点击
+        const btn = document.getElementById('saveCookieBtn');
+        if (btn && btn.disabled) return;
+        
+        if (btn) {
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.disabled = false;
+            }, 2000);
+        }
+        
+        CookieManager.saveCurrentCookie();
+    } catch (error) {
+        console.error('保存饼干失败:', error);
+        showToast('保存饼干失败，请重试');
+        // 重新启用按钮
+        const btn = document.getElementById('saveCookieBtn');
+        if (btn) btn.disabled = false;
+    }
 }
 
 function newCookie() {
-    CookieManager.generateNewCookie();
+    try {
+        // 防止快速重复点击
+        const btn = document.getElementById('newCookieBtn');
+        if (btn && btn.disabled) return;
+        
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '生成中...';
+        }
+        
+        CookieManager.generateNewCookie();
+    } catch (error) {
+        console.error('生成新饼干失败:', error);
+        showToast('生成新饼干失败，请重试');
+        // 重新启用按钮
+        const btn = document.getElementById('newCookieBtn');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '生成新饼干';
+        }
+    }
 }
 
 function importCookie() {
-    CookieManager.importCookie();
+    try {
+        CookieManager.importCookie();
+    } catch (error) {
+        console.error('导入饼干失败:', error);
+        showToast('导入饼干失败，请重试');
+    }
 }
 
 // 键盘事件处理
