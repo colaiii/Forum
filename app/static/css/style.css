@@ -812,4 +812,274 @@ body {
 .markdown-preview blockquote {
     margin: 0.25em 0;
     font-size: 0.9em;
+}
+
+/* 饼干管理器样式 */
+.cookie-manager-modal {
+    background: white;
+    border-radius: 8px;
+    max-width: 700px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    margin: 5% auto;
+    padding: 0;
+    overflow: hidden;
+}
+
+.cookie-manager-modal .modal-body {
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* 饼干管理各个区域 */
+.current-cookie-section,
+.saved-cookies-section,
+.add-cookie-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.add-cookie-section {
+    border-bottom: none;
+}
+
+.current-cookie-section h3,
+.saved-cookies-section h3,
+.add-cookie-section h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #3498db;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cookie-count {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    font-weight: normal;
+}
+
+/* 饼干项目样式 */
+.cookie-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid #ecf0f1;
+    transition: all 0.3s;
+}
+
+.cookie-item:hover {
+    border-color: #3498db;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+}
+
+.cookie-item.current {
+    background-color: #e8f5e8;
+    border-color: #27ae60;
+}
+
+.cookie-item.saved {
+    background-color: #f8f9fa;
+}
+
+.cookie-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.cookie-id {
+    font-weight: bold;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    color: #e74c3c;
+    font-size: 0.9em;
+}
+
+.cookie-name {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.cookie-status {
+    font-size: 0.8em;
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.cookie-date {
+    font-size: 0.8em;
+    color: #7f8c8d;
+}
+
+.cookie-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.btn-small {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8em;
+    border-radius: 4px;
+}
+
+.btn-small:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #95a5a6;
+}
+
+.btn-small:disabled:hover {
+    background-color: #95a5a6;
+    transform: none;
+}
+
+/* 饼干限制信息 */
+.cookie-limits {
+    padding: 0.5rem 0;
+    border-top: 1px solid #ecf0f1;
+    margin-top: 0.5rem;
+}
+
+.limit-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+}
+
+.limit-label {
+    color: #7f8c8d;
+}
+
+.limit-value {
+    font-weight: 600;
+    color: #2c3e50;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* 空状态消息 */
+.empty-message {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #ddd;
+}
+
+/* 安全提示 */
+.security-notice {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.security-notice p {
+    margin: 0;
+    color: #856404;
+    font-size: 0.9em;
+}
+
+/* 帮助说明区域 */
+.cookie-help {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 2rem;
+}
+
+.cookie-help h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.cookie-help ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.cookie-help li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+    line-height: 1.4;
+}
+
+.cookie-help li:before {
+    content: "•";
+    color: #3498db;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+.cookie-help strong {
+    color: #2c3e50;
+}
+
+/* 表单组在饼干管理器中的样式 */
+.cookie-manager-modal .form-group {
+    margin-bottom: 1rem;
+}
+
+.cookie-manager-modal .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.cookie-manager-modal .form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.cookie-manager-modal .form-group input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .cookie-manager-modal {
+        max-width: 95%;
+        margin: 2% auto;
+    }
+    
+    .cookie-item {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .cookie-actions {
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+    
+    .cookie-help {
+        padding: 1rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
 } 

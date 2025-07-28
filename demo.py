@@ -33,7 +33,7 @@ def create_demo_data():
         demo_threads = [
             {
                 "title": "欢迎来到校园网匿名论坛！",
-                "content": "这里是一个模仿A岛风格的匿名论坛，支持饼干系统。\n\n大家可以在这里自由讨论各种话题，请文明发言哦！\n\n主要功能：\n- 🍪 饼干系统（24小时有效）\n- 📝 发串和回复\n- 🖼️ 图片上传\n- 💬 引用回复\n- 📌 置顶功能",
+                "content": "这里是一个校园网匿名论坛，支持饼干系统。\n\n大家可以在这里自由讨论各种话题，请文明发言哦！\n\n主要功能：\n- 🍪 饼干系统（7天有效）\n- 📝 发串和回复\n- 🖼️ 图片上传\n- 💬 引用回复\n- 📌 置顶功能",
                 "is_pinned": True
             },
             {
@@ -62,7 +62,7 @@ def create_demo_data():
         demo_replies = [
             "支持楼主！这个论坛看起来很不错",
             "饼干系统很有趣，确实保护了隐私",
-            "界面设计很像A岛，很有意思",
+            "界面设计很简洁，很有意思",
             "Flask确实是个好框架，推荐！",
             "我也在学Python，一起加油！",
             "食堂的红烧肉确实不错",
@@ -81,6 +81,7 @@ def create_demo_data():
         created_threads = []
         for i, thread_data in enumerate(demo_threads):
             cookie_id = CookieManager.generate_cookie_id()
+            CookieManager.store_cookie(cookie_id)  # 注册饼干到系统
             thread = Thread(
                 title=thread_data["title"],
                 content=thread_data["content"],
@@ -99,6 +100,7 @@ def create_demo_data():
             reply_count = random.randint(2, 8)
             for j in range(reply_count):
                 cookie_id = CookieManager.generate_cookie_id()
+                CookieManager.store_cookie(cookie_id)  # 注册饼干到系统
                 reply_content = random.choice(demo_replies)
                 
                 # 有30%概率引用前面的回复

@@ -17,6 +17,7 @@
                 <a href="{{ url_for('main.index') }}" class="nav-link">首页</a>
                 <a href="{{ url_for('main.new_thread') }}" class="nav-link">发串</a>
                 <button class="nav-link" onclick="showRulesModal()" style="background: none; border: none; color: inherit; cursor: pointer;">规则</button>
+                <button class="nav-link" onclick="showCookieManager()" style="background: none; border: none; color: inherit; cursor: pointer;">🍪 饼干管理</button>
             </nav>
         </div>
     </header>
@@ -26,6 +27,90 @@
             {% block content %}{% endblock %}
         </div>
     </main>
+
+    <!-- 饼干管理弹窗 -->
+    <div id="cookieManagerModal" class="modal" onclick="hideCookieManager()">
+        <div class="modal-content cookie-manager-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>🍪 饼干管理</h2>
+                <span class="modal-close" onclick="hideCookieManager()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- 当前饼干 -->
+                <div class="current-cookie-section">
+                    <h3>当前饼干</h3>
+                    <div class="current-cookie-display">
+                        <div class="cookie-item current">
+                            <div class="cookie-info">
+                                <div class="cookie-id" id="currentCookieId">ID:loading...</div>
+                                <div class="cookie-color" id="currentCookieColor"></div>
+                                <div class="cookie-status">当前使用中</div>
+                            </div>
+                            <div class="cookie-actions">
+                                <button class="btn btn-secondary btn-small" onclick="saveCookie()" id="saveCookieBtn">收藏此饼干</button>
+                                <button class="btn btn-secondary btn-small" onclick="newCookie()" id="newCookieBtn">生成新饼干</button>
+                            </div>
+                            <div class="cookie-limits" id="cookieLimits">
+                                <div class="limit-info">
+                                    <span class="limit-label">24小时生成次数：</span>
+                                    <span class="limit-value" id="generationCount">0/3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 收藏的饼干 -->
+                <div class="saved-cookies-section">
+                    <h3>收藏的饼干 <span class="cookie-count" id="savedCookieCount">(0/3)</span></h3>
+                    <div class="saved-cookies-list" id="savedCookiesList">
+                        <div class="empty-message">暂无收藏的饼干</div>
+                    </div>
+                </div>
+
+                <!-- 添加饼干表单 -->
+                <div class="add-cookie-section">
+                    <h3>导入饼干</h3>
+                    <div class="security-notice">
+                        <p><strong>🔒 安全提示：</strong>只能导入已在系统中注册且有效的饼干ID。</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="importCookieId">饼干ID（16位）：</label>
+                        <input type="text" id="importCookieId" placeholder="输入16位饼干ID" maxlength="16">
+                    </div>
+                    <div class="form-group">
+                        <label for="importCookieName">备注名称：</label>
+                        <input type="text" id="importCookieName" placeholder="给这个饼干起个名字">
+                    </div>
+                    <button class="btn btn-primary" onclick="importCookie()">验证并导入</button>
+                </div>
+
+                <!-- 帮助说明 -->
+                <div class="cookie-help">
+                    <h4>💡 使用说明</h4>
+                    <ul>
+                        <li><strong>收藏饼干</strong>：点击"收藏此饼干"将当前饼干保存到本地</li>
+                        <li><strong>切换饼干</strong>：点击收藏列表中的"使用"按钮切换身份</li>
+                        <li><strong>生成新饼干</strong>：获得全新的匿名身份</li>
+                        <li><strong>导入饼干</strong>：手动输入已知的饼干ID进行恢复（仅限已注册饼干）</li>
+                        <li><strong>数据安全</strong>：所有饼干数据仅保存在您的浏览器本地</li>
+                        <li><strong>注意事项</strong>：清除浏览器数据会丢失收藏的饼干</li>
+                    </ul>
+                    
+                    <h4>⚠️ 使用限制</h4>
+                    <ul>
+                        <li><strong>收藏限制</strong>：每个用户最多只能收藏3个饼干身份</li>
+                        <li><strong>生成限制</strong>：24小时内最多只能生成3个新饼干</li>
+                        <li><strong>防滥用</strong>：超出限制时系统会显示剩余等待时间</li>
+                        <li><strong>合理使用</strong>：请珍惜每个饼干身份，避免频繁更换</li>
+                        <li><strong>自动清理</strong>：生成记录会在24小时后自动清除</li>
+                        <li><strong>安全验证</strong>：导入饼干需要验证是否在系统中注册</li>
+                        <li><strong>有效期追踪</strong>：所有饼干都有明确的创建和过期时间</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- 规则弹窗 -->
     <div id="rulesModal" class="modal" onclick="hideRulesModal()">
@@ -39,11 +124,14 @@
                     <h3>🍪 饼干匿名系统</h3>
                     <ul>
                         <li><strong>自动分配</strong>：首次访问自动获得16位匿名ID（饼干）</li>
-                        <li><strong>有效期</strong>：默认24小时，活跃用户可自动延期至72小时</li>
+                        <li><strong>有效期</strong>：默认7天，活跃用户可自动延期</li>
                         <li><strong>一致性</strong>：同一饼干在所有串中保持统一标识</li>
                         <li><strong>隐私保护</strong>：基于时间戳生成，不记录真实身份信息</li>
                         <li><strong>视觉区分</strong>：不同饼干显示不同颜色，便于识别</li>
                         <li><strong>安全机制</strong>：定期更换，防止长期追踪和滥用</li>
+                        <li><strong>收藏管理</strong>：可保存最多3个饼干身份，随时切换使用</li>
+                        <li><strong>本地存储</strong>：收藏的饼干仅保存在浏览器本地，保护隐私</li>
+                        <li><strong>生成限制</strong>：24小时内最多生成3个新饼干，防止滥用</li>
                     </ul>
                 </div>
                 
@@ -136,7 +224,7 @@
     <footer class="footer">
         <div class="container">
             <p>&copy; 2025 校园网匿名论坛 | 请文明发言</p>
-            <p class="footer-tip">饼干系统：每个用户自动分配临时ID，有效期24小时</p>
+            <p class="footer-tip">饼干系统：每个用户自动分配临时ID，有效期7天</p>
         </div>
     </footer>
 

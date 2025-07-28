@@ -190,4 +190,140 @@ def upload_image():
             return jsonify({'error': '图片处理失败'}), 500
             
     except Exception as e:
-        return jsonify({'error': f'上传失败: {str(e)}'}), 500 
+        return jsonify({'error': f'上传失败: {str(e)}'}), 500
+
+@api_bp.route('/cookie/set', methods=['POST'])
+def set_cookie():
+    """设置指定的饼干"""
+    try:
+        data = request.get_json()
+        cookie_id = data.get('cookie_id', '').strip()
+        
+        if not cookie_id:
+            return jsonify({'error': '饼干ID不能为空'}), 400
+        
+        if len(cookie_id) != 16:
+            return jsonify({'error': '饼干ID必须是16位'}), 400
+        
+        # 验证饼干ID格式（只允许字母数字）
+        import re
+        if not re.match(r'^[a-fA-F0-9]{16}$', cookie_id):
+            return jsonify({'error': '饼干ID格式无效'}), 400
+        
+        # 设置饼干到Redis（如果Redis可用）
+        CookieManager.store_cookie(cookie_id)
+        
+        return jsonify({
+            'success': True,
+            'cookie_id': cookie_id,
+            'message': '饼干设置成功'
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'设置失败: {str(e)}'}), 500
+
+@api_bp.route('/cookie/new', methods=['POST'])
+def generate_new_cookie():
+    """生成新的饼干"""
+    try:
+        # 生成新饼干
+        new_cookie = CookieManager.generate_cookie_id()
+        CookieManager.store_cookie(new_cookie)
+        
+        return jsonify({
+            'success': True,
+            'cookie_id': new_cookie,
+            'message': '新饼干生成成功'
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'生成失败: {str(e)}'}), 500
+
+@api_bp.route('/cookie/validate', methods=['POST'])
+def validate_cookie():
+    """验证饼干是否有效"""
+    try:
+        data = request.get_json()
+        cookie_id = data.get('cookie_id', '').strip()
+        
+        if not cookie_id:
+            return jsonify({'error': '饼干ID不能为空'}), 400
+        
+        is_valid = CookieManager.is_valid_cookie(cookie_id)
+        is_registered = CookieManager.is_cookie_registered(cookie_id)
+        cookie_info = CookieManager.get_cookie_info(cookie_id)
+        
+        return jsonify({
+            'success': True,
+            'cookie_id': cookie_id,
+            'is_valid': is_valid,
+            'is_registered': is_registered,
+            'cookie_info': cookie_info,
+            'message': '验证完成'
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'验证失败: {str(e)}'}), 500
+
+@api_bp.route('/cookie/check_registration', methods=['POST'])
+def check_cookie_registration():
+    """检查饼干是否在系统中注册"""
+    try:
+        data = request.get_json()
+        cookie_id = data.get('cookie_id', '').strip()
+        
+        if not cookie_id:
+            return jsonify({'error': '饼干ID不能为空'}), 400
+        
+        if len(cookie_id) != 16:
+            return jsonify({'error': '饼干ID必须是16位'}), 400
+        
+        # 验证饼干ID格式
+        import re
+        if not re.match(r'^[a-fA-F0-9]{16}$', cookie_id):
+            return jsonify({'error': '饼干ID格式无效'}), 400
+        
+        is_registered = CookieManager.is_cookie_registered(cookie_id)
+        is_valid = CookieManager.is_valid_cookie(cookie_id) if is_registered else False
+        cookie_info = CookieManager.get_cookie_info(cookie_id) if is_registered else None
+        
+        if not is_registered:
+            return jsonify({
+                'success': False,
+                'error': '此饼干未在系统中注册，无法导入'
+            }), 400
+        
+        if not is_valid:
+            return jsonify({
+                'success': False,
+                'error': '此饼干已过期或无效，无法导入'
+            }), 400
+        
+        return jsonify({
+            'success': True,
+            'cookie_id': cookie_id,
+            'is_registered': is_registered,
+            'is_valid': is_valid,
+            'cookie_info': cookie_info,
+            'message': '饼干验证通过，可以导入'
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'检查失败: {str(e)}'}), 500
+
+@api_bp.route('/cookie/stats', methods=['GET'])
+def get_cookie_stats():
+    """获取饼干系统统计信息"""
+    try:
+        total_registered = CookieManager.get_registered_cookies_count()
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'total_registered_cookies': total_registered,
+                'message': f'系统中共有 {total_registered} 个已注册的饼干'
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'获取统计失败: {str(e)}'}), 500 
