@@ -28,7 +28,7 @@
             <img src="{{ thread.image_url }}" alt="图片" onclick="showImageModal(this.src)">
         </div>
         {% endif %}
-        <div class="content-text">{{ thread.content|nl2br }}</div>
+                    <div class="content-text markdown-content">{{ thread.content|markdown }}</div>
     </div>
     
     <div class="thread-actions">
@@ -94,7 +94,7 @@
                 <img src="{{ reply.image_url }}" alt="图片" onclick="showImageModal(this.src)">
             </div>
             {% endif %}
-            <div class="content-text">{{ reply.content|nl2br }}</div>
+                            <div class="content-text markdown-content">{{ reply.content|markdown }}</div>
         </div>
     </div>
     {% endfor %}

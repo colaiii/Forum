@@ -31,7 +31,7 @@
                 <img src="{{ thread.image_url }}" alt="图片" onclick="showImageModal(this.src)">
             </div>
             {% endif %}
-            <p>{{ thread.content[:200] }}{% if thread.content|length > 200 %}...{% endif %}</p>
+            <div class="markdown-preview">{{ (thread.content[:200] + '...' if thread.content|length > 200 else thread.content)|markdown }}</div>
         </div>
         <div class="thread-stats">
             <span class="reply-count">💬 {{ thread.reply_count }}</span>
@@ -64,7 +64,7 @@
                 <img src="{{ thread.image_url }}" alt="图片" onclick="showImageModal(this.src)">
             </div>
             {% endif %}
-            <p>{{ thread.content[:200] }}{% if thread.content|length > 200 %}...{% endif %}</p>
+            <div class="markdown-preview">{{ (thread.content[:200] + '...' if thread.content|length > 200 else thread.content)|markdown }}</div>
         </div>
         <div class="thread-stats">
             <span class="reply-count">💬 {{ thread.reply_count }}</span>

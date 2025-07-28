@@ -650,4 +650,166 @@ body {
     .modal-header {
         padding: 1rem 1.5rem;
     }
+}
+
+/* Markdown样式 */
+.markdown-content, .markdown-preview {
+    line-height: 1.6;
+    word-wrap: break-word;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+    margin: 1em 0 0.5em 0;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.markdown-content h1 { font-size: 1.5em; }
+.markdown-content h2 { font-size: 1.3em; }
+.markdown-content h3 { font-size: 1.1em; }
+.markdown-content h4 { font-size: 1em; }
+
+.markdown-content p {
+    margin: 0.5em 0;
+}
+
+.markdown-content blockquote {
+    margin: 1em 0;
+    padding: 0.5em 1em;
+    border-left: 4px solid #e74c3c;
+    background-color: #f8f9fa;
+    color: #666;
+    font-style: italic;
+}
+
+.markdown-content code {
+    background-color: #f1f2f6;
+    color: #e74c3c;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.markdown-content pre {
+    background-color: #282c34;
+    color: #abb2bf;
+    padding: 1em;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin: 1em 0;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.markdown-content pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+}
+
+.markdown-content ul, .markdown-content ol {
+    margin: 0.5em 0;
+    padding-left: 2em;
+}
+
+.markdown-content li {
+    margin: 0.25em 0;
+}
+
+.markdown-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+}
+
+.markdown-content th,
+.markdown-content td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.markdown-content th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.markdown-content a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.markdown-content a:hover {
+    text-decoration: underline;
+}
+
+.markdown-content strong {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.markdown-content em {
+    font-style: italic;
+    color: #7f8c8d;
+}
+
+.markdown-content hr {
+    border: none;
+    border-top: 2px solid #ecf0f1;
+    margin: 2em 0;
+}
+
+/* 代码高亮样式 */
+.highlight {
+    background-color: #282c34;
+    color: #abb2bf;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+.highlight .err { color: #e06c75; }
+.highlight .k { color: #c678dd; }
+.highlight .s { color: #98c379; }
+.highlight .n { color: #e06c75; }
+.highlight .o { color: #56b6c2; }
+.highlight .p { color: #abb2bf; }
+.highlight .c { color: #5c6370; }
+.highlight .cm { color: #5c6370; }
+.highlight .cp { color: #5c6370; }
+.highlight .c1 { color: #5c6370; }
+.highlight .cs { color: #5c6370; }
+
+/* 预览样式优化 */
+.markdown-preview {
+    max-height: 150px;
+    overflow: hidden;
+    position: relative;
+}
+
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+    margin: 0.25em 0;
+    font-size: 1em;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.markdown-preview p {
+    margin: 0.25em 0;
+}
+
+.markdown-preview pre,
+.markdown-preview blockquote {
+    margin: 0.25em 0;
+    font-size: 0.9em;
 } 

@@ -6,4 +6,5 @@ redis==4.6.0
 Pillow==10.0.1
 python-dotenv==1.0.0
 psycopg2-binary==2.9.7
-gunicorn==21.2.0 
+gunicorn==21.2.0
+Markdown==3.5.1 

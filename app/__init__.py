@@ -36,6 +36,30 @@ def create_app():
     app.register_blueprint(api_bp, url_prefix='/api')
     
     # 添加自定义过滤器
+    @app.template_filter('markdown')
+    def markdown_filter(text):
+        """将Markdown文本转换为HTML"""
+        if text is None:
+            return ''
+        
+        import markdown
+        
+        # 配置markdown扩展
+        extensions = [
+            'markdown.extensions.nl2br',       # 自动换行
+            'markdown.extensions.fenced_code', # 代码块
+            'markdown.extensions.tables',      # 表格
+            'markdown.extensions.codehilite',  # 代码高亮
+        ]
+        
+        # 转换markdown为HTML
+        md = markdown.Markdown(extensions=extensions, extension_configs={
+            'codehilite': {'css_class': 'highlight'}
+        })
+        html_content = md.convert(str(text))
+        return Markup(html_content)
+    
+    # 保留nl2br过滤器作为备用
     @app.template_filter('nl2br')
     def nl2br_filter(text):
         """将换行符转换为HTML换行标签"""
