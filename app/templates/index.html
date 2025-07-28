@@ -8,6 +8,31 @@
     <a href="{{ url_for('main.new_thread') }}" class="btn btn-primary">+ 发新串</a>
 </div>
 
+<!-- 搜索功能 -->
+<div class="search-section">
+    <form action="{{ url_for('main.search') }}" method="GET" class="search-form">
+        <div class="search-input-wrapper">
+            <input type="text" name="q" value="{{ request.args.get('q', '') }}" 
+                   placeholder="搜索串标题、内容..." class="search-input" required>
+            <button type="submit" class="search-btn">🔍 搜索</button>
+        </div>
+        <div class="search-options">
+            <label class="search-option">
+                <input type="radio" name="type" value="all" {{ 'checked' if request.args.get('type', 'all') == 'all' else '' }}>
+                <span>全部</span>
+            </label>
+            <label class="search-option">
+                <input type="radio" name="type" value="title" {{ 'checked' if request.args.get('type') == 'title' else '' }}>
+                <span>仅标题</span>
+            </label>
+            <label class="search-option">
+                <input type="radio" name="type" value="content" {{ 'checked' if request.args.get('type') == 'content' else '' }}>
+                <span>仅内容</span>
+            </label>
+        </div>
+    </form>
+</div>
+
 <!-- 置顶串 -->
 {% if pinned_threads %}
 <div class="pinned-section">

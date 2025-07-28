@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}搜索结果 - 校园网匿名论坛{% endblock %}
+
+{% block content %}
+<div class="forum-header">
+    <h2>🔍 搜索结果</h2>
+    <a href="{{ url_for('main.index') }}" class="btn btn-secondary">返回首页</a>
+</div>
+
+<!-- 搜索框 -->
+<div class="search-section">
+    <form action="{{ url_for('main.search') }}" method="GET" class="search-form">
+        <div class="search-input-wrapper">
+            <input type="text" name="q" value="{{ query }}" 
+                   placeholder="搜索串标题、内容..." class="search-input" required>
+            <button type="submit" class="search-btn">🔍 搜索</button>
+        </div>
+        <div class="search-options">
+            <label class="search-option">
+                <input type="radio" name="type" value="all" {{ 'checked' if search_type == 'all' else '' }}>
+                <span>全部</span>
+            </label>
+            <label class="search-option">
+                <input type="radio" name="type" value="title" {{ 'checked' if search_type == 'title' else '' }}>
+                <span>仅标题</span>
+            </label>
+            <label class="search-option">
+                <input type="radio" name="type" value="content" {{ 'checked' if search_type == 'content' else '' }}>
+                <span>仅内容</span>
+            </label>
+        </div>
+    </form>
+</div>
+
+<!-- 搜索结果统计 -->
+<div class="search-stats">
+    {% if query %}
+        <p class="search-info">
+            搜索 "<strong>{{ query }}</strong>" 
+            {% if search_type == 'title' %}(仅标题)
+            {% elif search_type == 'content' %}(仅内容)
+            {% else %}(全部)
+            {% endif %}
+            {% if results %}
+                ，共找到 <strong>{{ results.total }}</strong> 个结果
+            {% else %}
+                ，未找到相关结果
+            {% endif %}
+        </p>
+    {% endif %}
+</div>
+
+<!-- 搜索结果列表 -->
+{% if results and results.items %}
+<div class="search-results-section">
+    {% for thread in results.items %}
+    <div class="thread-item search-result">
+        <div class="thread-header">
+            <span class="thread-id">No.{{ thread.id }}</span>
+            {% if thread.is_pinned %}
+            <span class="thread-pin">📌</span>
+            {% endif %}
+            <span class="thread-cookie" style="color: {{ cookie_manager.get_cookie_color(thread.cookie_id) }}">
+                {{ cookie_manager.format_cookie_display(thread.cookie_id) }}
+            </span>
+            <span class="thread-time">{{ thread.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+        </div>
+        <h4 class="thread-title">
+            <a href="{{ url_for('main.view_thread', thread_id=thread.id) }}">
+                {{ thread.title|highlight_search(query) if query else thread.title }}
+            </a>
+        </h4>
+        <div class="thread-content">
+            {% if thread.image_url %}
+            <div class="thread-image">
+                <img src="{{ thread.image_url }}" alt="图片" onclick="showImageModal(this.src)">
+            </div>
+            {% endif %}
+            <div class="markdown-preview search-preview">
+                {{ (thread.content[:300] + '...' if thread.content|length > 300 else thread.content)|highlight_search(query)|markdown if query else (thread.content[:300] + '...' if thread.content|length > 300 else thread.content)|markdown }}
+            </div>
+        </div>
+        <div class="thread-stats">
+            <span class="reply-count">💬 {{ thread.reply_count }}</span>
+            <span class="last-reply">最后回复: {{ thread.last_reply_at.strftime('%m-%d %H:%M') }}</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 分页 -->
+{% if results.pages > 1 %}
+<div class="pagination">
+    {% if results.has_prev %}
+        <a href="{{ url_for('main.search', q=query, type=search_type, page=results.prev_num) }}" class="page-link">&laquo; 上一页</a>
+    {% endif %}
+    
+    {% for page_num in results.iter_pages() %}
+        {% if page_num %}
+            {% if page_num != results.page %}
+                <a href="{{ url_for('main.search', q=query, type=search_type, page=page_num) }}" class="page-link">{{ page_num }}</a>
+            {% else %}
+                <span class="page-link current">{{ page_num }}</span>
+            {% endif %}
+        {% else %}
+            <span class="page-link">...</span>
+        {% endif %}
+    {% endfor %}
+    
+    {% if results.has_next %}
+        <a href="{{ url_for('main.search', q=query, type=search_type, page=results.next_num) }}" class="page-link">下一页 &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% elif query %}
+<!-- 无结果提示 -->
+<div class="no-results">
+    <div class="no-results-icon">🔍</div>
+    <h3>未找到相关结果</h3>
+    <p>尝试以下建议：</p>
+    <ul>
+        <li>检查拼写是否正确</li>
+        <li>尝试使用不同的关键词</li>
+        <li>使用更简单的搜索词</li>
+        <li>尝试搜索"全部"而不是仅标题或内容</li>
+    </ul>
+    <div class="no-results-actions">
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">浏览所有串</a>
+        <a href="{{ url_for('main.new_thread') }}" class="btn btn-secondary">发新串</a>
+    </div>
+</div>
+{% endif %}
+
+<!-- 图片弹窗 -->
+<div id="imageModal" class="modal" onclick="hideImageModal()">
+    <div class="modal-content">
+        <img id="modalImage" src="" alt="图片">
+        <span class="modal-close">&times;</span>
+    </div>
+</div>
+{% endblock %} 

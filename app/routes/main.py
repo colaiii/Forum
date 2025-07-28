@@ -3,6 +3,7 @@ from app.models.thread import Thread
 from app.models.reply import Reply
 from app.utils.cookie_manager import CookieManager
 from app import db
+from sqlalchemy import or_
 
 main_bp = Blueprint('main', __name__)
 
@@ -58,6 +59,56 @@ def new_thread():
     cookie_id = CookieManager.get_or_create_cookie(request)
     
     response = make_response(render_template('new_thread.html', cookie_manager=CookieManager))
+    response.set_cookie('forum_cookie', cookie_id, max_age=CookieManager.COOKIE_EXPIRY)
+    
+    return response 
+
+@main_bp.route('/search')
+def search():
+    """搜索串"""
+    query = request.args.get('q', '').strip()
+    search_type = request.args.get('type', 'all')
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    
+    # 获取或创建饼干
+    cookie_id = CookieManager.get_or_create_cookie(request)
+    
+    results = None
+    
+    if query:
+        # 构建搜索查询
+        if search_type == 'title':
+            # 仅搜索标题
+            search_query = Thread.query.filter(
+                Thread.title.contains(query)
+            )
+        elif search_type == 'content':
+            # 仅搜索内容
+            search_query = Thread.query.filter(
+                Thread.content.contains(query)
+            )
+        else:
+            # 搜索标题和内容
+            search_query = Thread.query.filter(
+                or_(
+                    Thread.title.contains(query),
+                    Thread.content.contains(query)
+                )
+            )
+        
+        # 按照最后回复时间排序并分页
+        results = search_query.order_by(Thread.last_reply_at.desc()).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+    
+    response = make_response(render_template('search_results.html',
+                                           query=query,
+                                           search_type=search_type,
+                                           results=results,
+                                           cookie_manager=CookieManager))
+    
+    # 设置饼干到浏览器
     response.set_cookie('forum_cookie', cookie_id, max_age=CookieManager.COOKIE_EXPIRY)
     
     return response 

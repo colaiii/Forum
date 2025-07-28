@@ -71,6 +71,26 @@ def create_app():
         result = escaped_text.replace('\n', '<br>')
         return Markup(result)
     
+    # 添加搜索高亮过滤器
+    @app.template_filter('highlight_search')
+    def highlight_search_filter(text, query):
+        """高亮搜索关键词"""
+        if not text or not query:
+            return text
+        
+        import html
+        import re
+        
+        # 转义HTML特殊字符
+        escaped_text = html.escape(str(text))
+        escaped_query = html.escape(str(query))
+        
+        # 使用正则表达式进行不区分大小写的替换
+        pattern = re.compile(re.escape(escaped_query), re.IGNORECASE)
+        highlighted = pattern.sub(f'<mark class="search-highlight">{escaped_query}</mark>', escaped_text)
+        
+        return Markup(highlighted)
+    
     # 添加静态文件路由
     @app.route('/uploads/<path:filename>')
     def uploaded_file(filename):
