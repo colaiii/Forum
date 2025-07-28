@@ -44,7 +44,7 @@
 ### 一键部署
 ```bash
 # 1. 克隆项目
-git clone <your-repository-url>
+git clone https://github.com/colaiii/Forum.git
 cd Forum
 
 # 2. 启动服务
