@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}发新串 - 校园网匿名论坛{% endblock %}
+
+{% block content %}
+<div class="thread-nav">
+    <a href="{{ url_for('main.index') }}" class="btn btn-back">⬅ 返回首页</a>
+</div>
+
+<div class="new-thread-section">
+    <h2>📝 发表新串</h2>
+    
+    <form id="newThreadForm" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="threadTitle">标题:</label>
+            <input type="text" id="threadTitle" name="title" maxlength="100" placeholder="输入串标题..." required>
+            <div class="char-count">
+                <span id="titleCount">0</span>/100
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="threadContent">内容:</label>
+            <textarea id="threadContent" name="content" rows="10" placeholder="输入串内容..." required></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="threadImage">图片 (可选):</label>
+            <input type="file" id="threadImage" name="image" accept="image/*">
+            <div class="file-info">支持 PNG, JPG, GIF, WebP 格式，最大 16MB</div>
+            <div class="image-preview" id="imagePreview"></div>
+        </div>
+        
+        <div class="form-rules">
+            <h4>📋 发串规则:</h4>
+            <ul>
+                <li>请文明发言，禁止发布违法违规内容</li>
+                <li>禁止恶意灌水和刷屏</li>
+                <li>尊重他人，理性讨论</li>
+                <li>图片内容请符合校园网规范</li>
+                <li>本论坛为匿名论坛，通过饼干系统识别用户</li>
+            </ul>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">发表串</button>
+            <button type="button" class="btn btn-secondary" onclick="history.back()">取消</button>
+        </div>
+    </form>
+</div>
+
+<script>
+// 标题字符计数
+document.getElementById('threadTitle').addEventListener('input', function() {
+    const count = this.value.length;
+    document.getElementById('titleCount').textContent = count;
+    
+    if (count > 100) {
+        this.style.borderColor = '#ff4757';
+    } else {
+        this.style.borderColor = '';
+    }
+});
+
+// 图片预览
+document.getElementById('threadImage').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('imagePreview');
+    
+    if (file) {
+        // 检查文件大小
+        if (file.size > 16 * 1024 * 1024) {
+            alert('图片大小超过16MB限制');
+            this.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `
+                <div class="preview-item">
+                    <img src="${e.target.result}" alt="预览">
+                    <div class="preview-info">
+                        <span>${file.name}</span>
+                        <span>${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                    </div>
+                </div>
+            `;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = '';
+    }
+});
+
+// 提交表单
+document.getElementById('newThreadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    
+    // 显示加载状态
+    submitBtn.textContent = '发表中...';
+    submitBtn.disabled = true;
+    
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch('/api/threads', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // 成功后跳转到新创建的串
+            window.location.href = `/thread/${result.thread_id}`;
+        } else {
+            alert(result.error || '发表失败');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('网络错误，请重试');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+});
+</script>
+{% endblock %} 

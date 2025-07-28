@@ -1,0 +1,16 @@
+# 复制此文件为 .env 并修改配置
+
+# 数据库配置
+DATABASE_URL=postgresql://postgres:password@localhost:5432/forum
+
+# Redis配置  
+REDIS_URL=redis://localhost:6379/0
+
+# Flask密钥 (生产环境请修改)
+SECRET_KEY=your-secret-key-change-in-production
+
+# Flask环境
+FLASK_ENV=development
+
+# 应用端口
+PORT=5000 

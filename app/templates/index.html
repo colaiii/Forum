@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - 校园网匿名论坛{% endblock %}
+
+{% block content %}
+<div class="forum-header">
+    <h2>🏠 论坛首页</h2>
+    <a href="{{ url_for('main.new_thread') }}" class="btn btn-primary">+ 发新串</a>
+</div>
+
+<!-- 置顶串 -->
+{% if pinned_threads %}
+<div class="pinned-section">
+    <h3 class="section-title">📌 置顶串</h3>
+    {% for thread in pinned_threads %}
+    <div class="thread-item pinned">
+        <div class="thread-header">
+            <span class="thread-id">No.{{ thread.id }}</span>
+            <span class="thread-pin">📌</span>
+            <span class="thread-cookie" style="color: {{ cookie_manager.get_cookie_color(thread.cookie_id) }}">
+                {{ cookie_manager.format_cookie_display(thread.cookie_id) }}
+            </span>
+            <span class="thread-time">{{ thread.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+        </div>
+        <h4 class="thread-title">
+            <a href="{{ url_for('main.view_thread', thread_id=thread.id) }}">{{ thread.title }}</a>
+        </h4>
+        <div class="thread-content">
+            {% if thread.image_url %}
+            <div class="thread-image">
+                <img src="{{ thread.image_url }}" alt="图片" onclick="showImageModal(this.src)">
+            </div>
+            {% endif %}
+            <p>{{ thread.content[:200] }}{% if thread.content|length > 200 %}...{% endif %}</p>
+        </div>
+        <div class="thread-stats">
+            <span class="reply-count">💬 {{ thread.reply_count }}</span>
+            <span class="last-reply">最后回复: {{ thread.last_reply_at.strftime('%m-%d %H:%M') }}</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- 普通串列表 -->
+<div class="threads-section">
+    <h3 class="section-title">📝 最新串</h3>
+    
+    {% for thread in threads.items %}
+    <div class="thread-item">
+        <div class="thread-header">
+            <span class="thread-id">No.{{ thread.id }}</span>
+            <span class="thread-cookie" style="color: {{ cookie_manager.get_cookie_color(thread.cookie_id) }}">
+                {{ cookie_manager.format_cookie_display(thread.cookie_id) }}
+            </span>
+            <span class="thread-time">{{ thread.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+        </div>
+        <h4 class="thread-title">
+            <a href="{{ url_for('main.view_thread', thread_id=thread.id) }}">{{ thread.title }}</a>
+        </h4>
+        <div class="thread-content">
+            {% if thread.image_url %}
+            <div class="thread-image">
+                <img src="{{ thread.image_url }}" alt="图片" onclick="showImageModal(this.src)">
+            </div>
+            {% endif %}
+            <p>{{ thread.content[:200] }}{% if thread.content|length > 200 %}...{% endif %}</p>
+        </div>
+        <div class="thread-stats">
+            <span class="reply-count">💬 {{ thread.reply_count }}</span>
+            <span class="last-reply">最后回复: {{ thread.last_reply_at.strftime('%m-%d %H:%M') }}</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 分页 -->
+{% if threads.pages > 1 %}
+<div class="pagination">
+    {% if threads.has_prev %}
+        <a href="{{ url_for('main.index', page=threads.prev_num) }}" class="page-link">&laquo; 上一页</a>
+    {% endif %}
+    
+    {% for page_num in threads.iter_pages() %}
+        {% if page_num %}
+            {% if page_num != threads.page %}
+                <a href="{{ url_for('main.index', page=page_num) }}" class="page-link">{{ page_num }}</a>
+            {% else %}
+                <span class="page-link current">{{ page_num }}</span>
+            {% endif %}
+        {% else %}
+            <span class="page-link">...</span>
+        {% endif %}
+    {% endfor %}
+    
+    {% if threads.has_next %}
+        <a href="{{ url_for('main.index', page=threads.next_num) }}" class="page-link">下一页 &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- 图片弹窗 -->
+<div id="imageModal" class="modal" onclick="hideImageModal()">
+    <div class="modal-content">
+        <img id="modalImage" src="" alt="图片">
+        <span class="modal-close">&times;</span>
+    </div>
+</div>
+{% endblock %} 

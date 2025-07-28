@@ -1,0 +1,642 @@
+/* 重置样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+}
+
+/* 容器 */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 头部 */
+.header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.nav {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-link {
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    font-size: inherit;
+    font-family: inherit;
+}
+
+.nav-link:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+/* 主内容 */
+.main {
+    min-height: calc(100vh - 160px);
+    padding: 2rem 0;
+}
+
+/* 论坛头部 */
+.forum-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.forum-header h2 {
+    color: #2c3e50;
+}
+
+/* 按钮样式 */
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-secondary {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #7f8c8d;
+}
+
+.btn-back {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn-back:hover {
+    background-color: #c0392b;
+}
+
+.btn-reply, .btn-quote {
+    background-color: #27ae60;
+    color: white;
+    font-size: 12px;
+    padding: 0.3rem 0.6rem;
+}
+
+.btn-reply:hover, .btn-quote:hover {
+    background-color: #219a52;
+}
+
+/* 分区标题 */
+.section-title {
+    margin: 2rem 0 1rem 0;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid #3498db;
+    color: #2c3e50;
+}
+
+/* 置顶区域 */
+.pinned-section {
+    margin-bottom: 2rem;
+}
+
+/* 串列表 */
+.thread-item {
+    background: white;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid #3498db;
+}
+
+.thread-item.pinned {
+    border-left-color: #e74c3c;
+    background-color: #fef9e7;
+}
+
+.thread-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+.thread-id, .reply-id {
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.thread-pin {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.thread-cookie, .reply-cookie {
+    font-weight: bold;
+    padding: 0.2rem 0.4rem;
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 3px;
+}
+
+.thread-time, .reply-time {
+    margin-left: auto;
+}
+
+.thread-title {
+    margin-bottom: 0.5rem;
+}
+
+.thread-title a {
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.thread-title a:hover {
+    color: #3498db;
+}
+
+.thread-content {
+    margin-bottom: 1rem;
+    line-height: 1.8;
+}
+
+.thread-image, .reply-image {
+    margin: 1rem 0;
+}
+
+.thread-image img, .reply-image img {
+    max-width: 300px;
+    max-height: 300px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.thread-image img:hover, .reply-image img:hover {
+    transform: scale(1.05);
+}
+
+.thread-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+/* 串详情页 */
+.thread-nav {
+    margin-bottom: 1rem;
+}
+
+.main-thread {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    border-left: 4px solid #e74c3c;
+}
+
+.main-thread .thread-title {
+    font-size: 1.5rem;
+    margin: 1rem 0;
+    color: #2c3e50;
+}
+
+.thread-actions {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* 回复表单 */
+.reply-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.reply-form h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+/* 表单样式 */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.char-count {
+    text-align: right;
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 0.3rem;
+}
+
+.file-info {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 0.3rem;
+}
+
+.image-preview {
+    margin-top: 0.5rem;
+}
+
+.image-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 4px;
+}
+
+.preview-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.preview-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+.form-rules {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.form-rules h4 {
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.form-rules ul {
+    list-style: none;
+    padding-left: 1rem;
+}
+
+.form-rules li {
+    margin-bottom: 0.3rem;
+    font-size: 13px;
+    color: #555;
+}
+
+.form-rules li:before {
+    content: "• ";
+    color: #3498db;
+    margin-right: 0.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* 回复列表 */
+.replies-section {
+    margin-top: 2rem;
+}
+
+.reply-item {
+    background: white;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 3px solid #27ae60;
+}
+
+.reply-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+.reply-content {
+    line-height: 1.8;
+}
+
+/* 引用块 */
+.quote-block {
+    background-color: #f8f9fa;
+    border-left: 3px solid #3498db;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.quote-header {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-bottom: 0.3rem;
+}
+
+.quote-content {
+    font-size: 13px;
+    color: #555;
+    font-style: italic;
+}
+
+/* 分页 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 2rem 0;
+}
+
+.page-link {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #3498db;
+    background: white;
+}
+
+.page-link:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+.page-link.current {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+/* 图片弹窗 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+    cursor: pointer;
+}
+
+.modal-content {
+    position: relative;
+    margin: 5% auto;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 4px;
+}
+
+.modal-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+/* 规则弹窗特殊样式 */
+.rules-modal {
+    background: white;
+    border-radius: 8px;
+    max-width: 800px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    margin: 5% auto;
+    padding: 0;
+}
+
+.modal-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0; /* 防止收缩 */
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.modal-header .modal-close {
+    position: static;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.modal-header .modal-close:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+
+.modal-body {
+    padding: 2rem;
+    line-height: 1.6;
+    overflow-y: auto; /* 只有内容区域滚动 */
+    flex: 1; /* 占据剩余空间 */
+}
+
+.rules-section {
+    margin-bottom: 2rem;
+}
+
+.rules-section h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #3498db;
+}
+
+.rules-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.rules-section li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.rules-section li:before {
+    content: "•";
+    color: #3498db;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+.rules-footer {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.rules-footer p {
+    margin-bottom: 0.5rem;
+}
+
+.rules-footer em {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+/* 底部 */
+.footer {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 1rem 0;
+    text-align: center;
+    font-size: 12px;
+}
+
+.footer-tip {
+    margin-top: 0.5rem;
+    color: #95a5a6;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 10px;
+    }
+    
+    .header .container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .forum-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .thread-header, .reply-header {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .thread-image img, .reply-image img {
+        max-width: 100%;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+    }
+    
+    .rules-modal {
+        max-width: 95%;
+        margin: 2% auto;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+} 

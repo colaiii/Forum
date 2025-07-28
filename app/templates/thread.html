@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}{{ thread.title }} - 校园网匿名论坛{% endblock %}
+
+{% block content %}
+<div class="thread-nav">
+    <a href="{{ url_for('main.index') }}" class="btn btn-back">⬅ 返回首页</a>
+</div>
+
+<!-- 主串 -->
+<div class="main-thread">
+    <div class="thread-header">
+        <span class="thread-id">No.{{ thread.id }}</span>
+        {% if thread.is_pinned %}
+        <span class="thread-pin">📌</span>
+        {% endif %}
+        <span class="thread-cookie" style="color: {{ cookie_manager.get_cookie_color(thread.cookie_id) }}">
+            {{ cookie_manager.format_cookie_display(thread.cookie_id) }}
+        </span>
+        <span class="thread-time">{{ thread.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+    </div>
+    
+    <h2 class="thread-title">{{ thread.title }}</h2>
+    
+    <div class="thread-content">
+        {% if thread.image_url %}
+        <div class="thread-image">
+            <img src="{{ thread.image_url }}" alt="图片" onclick="showImageModal(this.src)">
+        </div>
+        {% endif %}
+        <div class="content-text">{{ thread.content|nl2br }}</div>
+    </div>
+    
+    <div class="thread-actions">
+        <button class="btn btn-reply" onclick="showReplyForm()">回复</button>
+        <span class="reply-count">💬 {{ thread.reply_count }} 个回复</span>
+    </div>
+</div>
+
+<!-- 回复表单 -->
+<div id="replyForm" class="reply-form" style="display: none;">
+    <h3>发表回复</h3>
+    <form id="submitReplyForm" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="replyContent">内容:</label>
+            <textarea id="replyContent" name="content" rows="6" placeholder="输入回复内容..." required></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="replyImage">图片 (可选):</label>
+            <input type="file" id="replyImage" name="image" accept="image/*">
+            <div class="image-preview" id="replyImagePreview"></div>
+        </div>
+        
+        <input type="hidden" id="quoteId" name="quote_id" value="">
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">发表回复</button>
+            <button type="button" class="btn btn-secondary" onclick="hideReplyForm()">取消</button>
+        </div>
+    </form>
+</div>
+
+<!-- 回复列表 -->
+<div class="replies-section">
+    {% for reply in replies %}
+    <div class="reply-item" id="reply-{{ reply.id }}">
+        <div class="reply-header">
+            <span class="reply-id">No.{{ reply.id }}</span>
+            <span class="reply-cookie" style="color: {{ cookie_manager.get_cookie_color(reply.cookie_id) }}">
+                {{ cookie_manager.format_cookie_display(reply.cookie_id) }}
+            </span>
+            <span class="reply-time">{{ reply.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+            <button class="btn btn-quote" onclick="quoteReply({{ reply.id }}, '{{ cookie_manager.format_cookie_display(reply.cookie_id) }}')">引用</button>
+        </div>
+        
+        {% if reply.quote_id and reply.quoted_reply %}
+        <div class="quote-block">
+            <div class="quote-header">
+                <span class="quote-id">引用 No.{{ reply.quote_id }}</span>
+                <span class="quote-cookie" style="color: {{ cookie_manager.get_cookie_color(reply.quoted_reply.cookie_id) }}">
+                    {{ cookie_manager.format_cookie_display(reply.quoted_reply.cookie_id) }}
+                </span>
+            </div>
+            <div class="quote-content">
+                {{ reply.quoted_reply.content[:100] }}{% if reply.quoted_reply.content|length > 100 %}...{% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="reply-content">
+            {% if reply.image_url %}
+            <div class="reply-image">
+                <img src="{{ reply.image_url }}" alt="图片" onclick="showImageModal(this.src)">
+            </div>
+            {% endif %}
+            <div class="content-text">{{ reply.content|nl2br }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 图片弹窗 -->
+<div id="imageModal" class="modal" onclick="hideImageModal()">
+    <div class="modal-content">
+        <img id="modalImage" src="" alt="图片">
+        <span class="modal-close">&times;</span>
+    </div>
+</div>
+
+<script>
+// 显示回复表单
+function showReplyForm() {
+    document.getElementById('replyForm').style.display = 'block';
+    document.getElementById('replyContent').focus();
+}
+
+// 隐藏回复表单
+function hideReplyForm() {
+    document.getElementById('replyForm').style.display = 'none';
+    document.getElementById('quoteId').value = '';
+    document.getElementById('replyContent').value = '';
+}
+
+// 引用回复
+function quoteReply(replyId, cookieDisplay) {
+    document.getElementById('quoteId').value = replyId;
+    const content = document.getElementById('replyContent');
+    content.value = `>>${replyId} ${cookieDisplay}\n`;
+    showReplyForm();
+    content.focus();
+    content.setSelectionRange(content.value.length, content.value.length);
+}
+
+// 提交回复
+document.getElementById('submitReplyForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch(`/api/threads/{{ thread.id }}/replies`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            location.reload(); // 刷新页面显示新回复
+        } else {
+            alert(result.error || '回复失败');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('网络错误，请重试');
+    }
+});
+
+// 图片预览
+document.getElementById('replyImage').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('replyImagePreview');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="预览">`;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = '';
+    }
+});
+</script>
+{% endblock %} 

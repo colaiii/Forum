@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}校园网匿名论坛{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">
+                <a href="{{ url_for('main.index') }}">🍪 校园网匿名论坛</a>
+            </h1>
+            <nav class="nav">
+                <a href="{{ url_for('main.index') }}" class="nav-link">首页</a>
+                <a href="{{ url_for('main.new_thread') }}" class="nav-link">发串</a>
+                <button class="nav-link" onclick="showRulesModal()" style="background: none; border: none; color: inherit; cursor: pointer;">规则</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- 规则弹窗 -->
+    <div id="rulesModal" class="modal" onclick="hideRulesModal()">
+        <div class="modal-content rules-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>📋 论坛规则</h2>
+                <span class="modal-close" onclick="hideRulesModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="rules-section">
+                    <h3>🍪 饼干系统说明</h3>
+                    <ul>
+                        <li>每个访客自动分配临时匿名ID（饼干）</li>
+                        <li>饼干有效期为24小时，过期后自动更换</li>
+                        <li>同一饼干在同一串内保持一致，便于追踪讨论</li>
+                        <li>不同饼干显示不同颜色，便于区分用户</li>
+                        <li>饼干系统保护用户隐私，无需注册账号</li>
+                    </ul>
+                </div>
+                
+                <div class="rules-section">
+                    <h3>📝 发串规则</h3>
+                    <ul>
+                        <li>标题不超过100个字符</li>
+                        <li>内容要求文明，禁止发布违法违规内容</li>
+                        <li>支持上传图片，格式：PNG、JPG、GIF、WebP</li>
+                        <li>图片大小限制：16MB</li>
+                        <li>禁止恶意灌水和重复发串</li>
+                    </ul>
+                </div>
+                
+                <div class="rules-section">
+                    <h3>💬 回复规则</h3>
+                    <ul>
+                        <li>支持引用其他回复，使用 >> 格式</li>
+                        <li>回复内容要求理性友善</li>
+                        <li>禁止人身攻击和恶意争吵</li>
+                        <li>可以上传图片配合回复</li>
+                        <li>保持讨论主题相关性</li>
+                    </ul>
+                </div>
+                
+                <div class="rules-section">
+                    <h3>🚫 禁止行为</h3>
+                    <ul>
+                        <li>发布违法、色情、暴力等不良内容</li>
+                        <li>恶意刷屏、灌水、广告</li>
+                        <li>泄露他人隐私信息</li>
+                        <li>传播谣言或不实信息</li>
+                        <li>恶意攻击网站或其他用户</li>
+                        <li>利用技术手段破坏论坛秩序</li>
+                    </ul>
+                </div>
+                
+                <div class="rules-section">
+                    <h3>⚖️ 处理措施</h3>
+                    <ul>
+                        <li>违规内容将被删除</li>
+                        <li>严重违规可能导致IP限制</li>
+                        <li>鼓励用户举报违规行为</li>
+                        <li>管理员保留最终解释权</li>
+                    </ul>
+                </div>
+                
+                <div class="rules-footer">
+                    <p><strong>🤝 温馨提示</strong></p>
+                    <p>本论坛旨在为校园网用户提供自由、匿名的讨论平台。请大家文明发言，理性讨论，共同维护良好的社区环境。</p>
+                    <p><em>最后更新：2025年</em></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 校园网匿名论坛 | 请文明发言</p>
+            <p class="footer-tip">饼干系统：每个用户自动分配临时ID，有效期24小时</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html> 
