@@ -16,6 +16,7 @@
   - 回复频率限制：每分钟最多回复5次，防止恶意刷屏
 - 🎨 **响应式界面**: 适配桌面和移动设备的现代化UI
 - 🔒 **内容过滤**: 智能内容审核，维护健康讨论环境
+- 🛠️ **强大管理工具**: 完整的后台管理脚本，支持串管理、统计分析、批量操作
 - 🐳 **容器化部署**: 基于Docker的一键部署方案
 
 ## 🛠️ 技术架构
@@ -26,6 +27,7 @@
 - **ORM**: SQLAlchemy 3.0
 - **图片处理**: Pillow
 - **Markdown**: Python-Markdown 3.5
+- **管理工具**: 自研Python脚本，提供完整的论坛管理功能
 
 ### 前端技术栈
 - **模板引擎**: Jinja2
@@ -120,6 +122,11 @@ docker compose exec web bash
 
 # 清理所有容器和镜像
 docker compose down --rmi all --volumes
+
+# 管理工具常用命令
+docker compose exec web python admin_tools.py stats      # 查看统计
+docker compose exec web python admin_tools.py list       # 列出串
+docker compose exec web python admin_tools.py cleanup --days 30  # 清理旧串
 ```
 
 ## 📁 项目结构
@@ -154,6 +161,7 @@ Forum/
 ├── Dockerfile             # 应用镜像
 ├── requirements.txt       # Python依赖
 ├── demo.py               # 演示数据生成
+├── admin_tools.py        # 论坛管理工具脚本
 └── wsgi.py               # 应用入口
 ```
 
@@ -297,6 +305,80 @@ else:
 |------|------|
 ```
 
+### 🛠️ 管理工具
+
+论坛提供了强大的后台管理脚本 `admin_tools.py`，用于串的管理和维护。
+
+#### 基本使用方法
+```bash
+# 基本命令格式
+docker compose exec web python admin_tools.py <操作> [参数]
+```
+
+#### 主要功能
+
+##### 📊 查看串统计
+```bash
+# 查看论坛统计信息
+docker compose exec web python admin_tools.py stats
+
+# 列出最新20个串
+docker compose exec web python admin_tools.py list
+
+# 列出所有串
+docker compose exec web python admin_tools.py list --all
+```
+
+##### 🗑️ 删除管理
+```bash
+# 删除单个串（有确认提示）
+docker compose exec web python admin_tools.py delete --id 5
+
+# 删除用户所有串
+docker compose exec web python admin_tools.py delete-user --cookie 3c8bd2b2
+
+# 批量删除多个串
+docker compose exec web python admin_tools.py batch --ids 1,2,3,4
+
+# 清理30天前的旧串
+docker compose exec web python admin_tools.py cleanup --days 30
+```
+
+##### 🚀 高级操作
+```bash
+# 强制删除（跳过确认）
+docker compose exec web python admin_tools.py delete --id 5 --force
+
+# 清理指定天数前的串
+docker compose exec web python admin_tools.py cleanup --days 7
+
+# 查看帮助信息
+docker compose exec web python admin_tools.py --help
+```
+
+#### 安全特性
+- **⚠️ 确认机制**: 所有删除操作都有确认提示，防止误操作
+- **🗑️ 完整清理**: 自动删除关联的图片文件和所有回复
+- **📊 详细信息**: 删除前显示串的详细信息（标题、回复数、创建时间等）
+- **🔄 级联删除**: 删除串时自动删除所有相关回复，保持数据一致性
+- **💾 事务安全**: 使用数据库事务确保操作的原子性
+- **🔒 权限控制**: 只能在Docker容器内执行，确保安全性
+
+#### 实用场景
+```bash
+# 定期维护：清理旧内容
+docker compose exec web python admin_tools.py cleanup --days 30
+
+# 内容管理：删除违规串
+docker compose exec web python admin_tools.py delete --id 123
+
+# 用户管理：处理恶意用户
+docker compose exec web python admin_tools.py delete-user --cookie abc123
+
+# 监控分析：查看论坛状态
+docker compose exec web python admin_tools.py stats
+```
+
 ### 配置说明
 
 ### 环境变量
@@ -406,13 +488,15 @@ docker stats
 4. 推送分支: `git push origin feature/新功能`
 5. 提交Pull Request
 
+## 📄 许可证
 
+本项目采用MIT许可证 - 详情请参阅 [LICENSE](LICENSE) 文件
 
 ## 📞 支持与反馈
 
-- 项目地址: https://github.com/colaiii/Forum
-- 问题反馈: https://github.com/colaiii/Forum/issues
-- 开发团队: Starumi
+- 项目地址: [GitHub Repository]
+- 问题反馈: [Issues页面]
+- 开发团队: Campus Forum Team
 
 ---
 
@@ -422,5 +506,6 @@ docker stats
 - 🔍 v1.2.0: 新增搜索功能和关键词高亮
 - 🛡️ v1.3.0: 完善安全防护，新增多层次频率限制系统
 - 💬 v1.4.0: 优化引用功能，改进用户体验
+- 🛠️ v1.5.0: 新增强大的管理工具系统，支持完整的串管理和维护功能
 
 © 2025 校园网匿名论坛 | 基于Flask开发 | 包含完整的安全防护体系 

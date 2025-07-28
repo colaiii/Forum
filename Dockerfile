@@ -22,6 +22,9 @@ COPY . .
 # 创建上传目录并设置权限
 RUN mkdir -p uploads && chmod 755 uploads
 
+# 确保管理脚本可执行
+RUN chmod +x admin_tools.py
+
 # 设置环境变量
 ENV FLASK_APP=wsgi.py
 ENV FLASK_ENV=production
