@@ -448,4 +448,107 @@ def get_cookie_stats():
         })
         
     except Exception as e:
-        return jsonify({'error': f'获取统计失败: {str(e)}'}), 500 
+        return jsonify({'error': f'获取统计失败: {str(e)}'}), 500
+
+@api_bp.route('/threads/latest', methods=['GET'])
+def get_latest_threads():
+    """获取最新串数据（用于自动刷新）"""
+    try:
+        # 获取参数
+        last_thread_id = request.args.get('last_id', 0, type=int)
+        page = request.args.get('page', 1, type=int)
+        per_page = 20
+        
+        # 获取置顶串
+        pinned_threads = Thread.query.filter_by(is_pinned=True).order_by(Thread.last_reply_at.desc()).all()
+        
+        # 获取普通串
+        normal_threads_query = Thread.query.filter_by(is_pinned=False).order_by(Thread.last_reply_at.desc())
+        
+        # 如果提供了last_thread_id，只获取比这个ID新的串
+        if last_thread_id > 0:
+            new_threads = normal_threads_query.filter(Thread.id > last_thread_id).all()
+            has_new_content = len(new_threads) > 0
+        else:
+            # 正常分页获取
+            pagination = normal_threads_query.paginate(page=page, per_page=per_page, error_out=False)
+            new_threads = pagination.items
+            has_new_content = True
+        
+        # 构建响应数据
+        def thread_to_dict(thread):
+            return {
+                'id': thread.id,
+                'title': thread.title,
+                'content': thread.content[:200] + '...' if len(thread.content) > 200 else thread.content,
+                'cookie_id': thread.cookie_id,
+                'cookie_display': CookieManager.format_cookie_display(thread.cookie_id),
+                'cookie_color': CookieManager.get_cookie_color(thread.cookie_id),
+                'image_url': thread.image_url,
+                'created_at': thread.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'last_reply_at': thread.last_reply_at.strftime('%m-%d %H:%M'),
+                'reply_count': thread.reply_count,
+                'is_pinned': thread.is_pinned
+            }
+        
+        response_data = {
+            'success': True,
+            'has_new_content': has_new_content,
+            'pinned_threads': [thread_to_dict(thread) for thread in pinned_threads],
+            'normal_threads': [thread_to_dict(thread) for thread in new_threads],
+            'latest_thread_id': max([t.id for t in (pinned_threads + new_threads)]) if (pinned_threads + new_threads) else 0
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        return jsonify({'error': f'获取最新串失败: {str(e)}'}), 500
+
+@api_bp.route('/threads/<int:thread_id>/replies/latest', methods=['GET'])
+def get_latest_replies(thread_id):
+    """获取指定串的最新回复（用于自动刷新）"""
+    try:
+        # 验证串是否存在
+        thread = Thread.query.get_or_404(thread_id)
+        
+        # 获取参数
+        last_reply_id = request.args.get('last_id', 0, type=int)
+        
+        # 获取回复
+        replies_query = Reply.query.filter_by(thread_id=thread_id).order_by(Reply.created_at.asc())
+        
+        # 如果提供了last_reply_id，只获取比这个ID新的回复
+        if last_reply_id > 0:
+            new_replies = replies_query.filter(Reply.id > last_reply_id).all()
+            has_new_content = len(new_replies) > 0
+        else:
+            # 获取所有回复
+            new_replies = replies_query.all()
+            has_new_content = True
+        
+        # 构建响应数据
+        def reply_to_dict(reply):
+            return {
+                'id': reply.id,
+                'content': reply.content,
+                'cookie_id': reply.cookie_id,
+                'cookie_display': CookieManager.format_cookie_display(reply.cookie_id),
+                'cookie_color': CookieManager.get_cookie_color(reply.cookie_id),
+                'image_url': reply.image_url,
+                'quote_id': reply.quote_id,
+                'created_at': reply.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'thread_id': reply.thread_id
+            }
+        
+        response_data = {
+            'success': True,
+            'has_new_content': has_new_content,
+            'replies': [reply_to_dict(reply) for reply in new_replies],
+            'latest_reply_id': max([r.id for r in new_replies]) if new_replies else 0,
+            'total_replies': thread.reply_count
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        return jsonify({'error': f'获取最新回复失败: {str(e)}'}), 500 

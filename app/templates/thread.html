@@ -61,8 +61,15 @@
     </form>
 </div>
 
+<!-- 新回复提示 -->
+<div id="newRepliesNotification" class="new-threads-notification" style="display: none;">
+    <span id="newRepliesMessage">💬 有新回复，点击查看</span>
+    <button onclick="refreshReplies(true)" class="refresh-btn">立即查看</button>
+</div>
+
 <!-- 回复列表 -->
 <div class="replies-section">
+    <div id="repliesList">
     {% for reply in replies %}
     <div class="reply-item" id="reply-{{ reply.id }}">
         <div class="reply-header">
@@ -98,6 +105,7 @@
         </div>
     </div>
     {% endfor %}
+    </div>
 </div>
 
 <!-- 图片弹窗 -->
@@ -168,6 +176,109 @@ document.getElementById('replyImage').addEventListener('change', function(e) {
         reader.readAsDataURL(file);
     } else {
         preview.innerHTML = '';
+    }
+});
+
+// 自动刷新回复功能
+class ReplyAutoRefresh {
+    constructor(threadId) {
+        this.threadId = threadId;
+        this.refreshInterval = 20000; // 20秒检查一次
+        this.lastReplyId = {{ replies[-1].id if replies else 0 }};
+        this.isRefreshing = false;
+        this.isPageVisible = true;
+        this.intervalId = null;
+        
+        this.init();
+    }
+    
+    init() {
+        // 页面可见性检测
+        document.addEventListener('visibilitychange', () => {
+            this.isPageVisible = !document.hidden;
+            if (this.isPageVisible) {
+                this.checkForNewReplies();
+            }
+        });
+        
+        // 启动定时检查
+        this.startAutoRefresh();
+    }
+    
+    startAutoRefresh() {
+        this.intervalId = setInterval(() => {
+            if (this.isPageVisible && !this.isRefreshing) {
+                this.checkForNewReplies();
+            }
+        }, this.refreshInterval);
+    }
+    
+    stopAutoRefresh() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+        }
+    }
+    
+    async checkForNewReplies() {
+        if (this.isRefreshing) return;
+        
+        this.isRefreshing = true;
+        
+        try {
+            const response = await fetch(`/api/threads/${this.threadId}/replies/latest?last_id=${this.lastReplyId}`);
+            const data = await response.json();
+            
+            if (data.success && data.has_new_content && data.replies.length > 0) {
+                this.showNewRepliesNotification(data.replies.length);
+                this.lastReplyId = data.latest_reply_id;
+            }
+        } catch (error) {
+            console.error('检查新回复失败:', error);
+        } finally {
+            this.isRefreshing = false;
+        }
+    }
+    
+    showNewRepliesNotification(count) {
+        const notification = document.getElementById('newRepliesNotification');
+        const message = document.getElementById('newRepliesMessage');
+        if (notification && message) {
+            message.textContent = `💬 有 ${count} 个新回复，点击查看`;
+            notification.style.display = 'block';
+        }
+    }
+    
+    hideNewRepliesNotification() {
+        const notification = document.getElementById('newRepliesNotification');
+        if (notification) {
+            notification.style.display = 'none';
+        }
+    }
+}
+
+// 刷新回复列表
+async function refreshReplies(force = false) {
+    const autoRefresh = window.replyAutoRefresh;
+    if (!autoRefresh) return;
+    
+    if (force) {
+        autoRefresh.hideNewRepliesNotification();
+        window.location.reload();
+        return;
+    }
+    
+    autoRefresh.checkForNewReplies();
+}
+
+// 初始化回复自动刷新
+document.addEventListener('DOMContentLoaded', () => {
+    window.replyAutoRefresh = new ReplyAutoRefresh({{ thread.id }});
+});
+
+// 页面卸载时清理定时器
+window.addEventListener('beforeunload', () => {
+    if (window.replyAutoRefresh) {
+        window.replyAutoRefresh.stopAutoRefresh();
     }
 });
 </script>

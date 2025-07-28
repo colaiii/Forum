@@ -33,10 +33,22 @@
     </form>
 </div>
 
+<!-- 自动刷新状态提示 -->
+<div id="refreshStatus" class="refresh-status" style="display: none;">
+    <span id="refreshMessage">🔄 正在检查新内容...</span>
+</div>
+
+<!-- 新串提示 -->
+<div id="newThreadsNotification" class="new-threads-notification" style="display: none;">
+    <span id="newThreadsMessage">📨 发现新串，点击刷新查看</span>
+    <button onclick="refreshThreads(true)" class="refresh-btn">立即查看</button>
+</div>
+
 <!-- 置顶串 -->
 {% if pinned_threads %}
-<div class="pinned-section">
+<div class="pinned-section" id="pinnedSection">
     <h3 class="section-title">📌 置顶串</h3>
+    <div id="pinnedThreadsList">
     {% for thread in pinned_threads %}
     <div class="thread-item pinned">
         <div class="thread-header">
@@ -64,6 +76,7 @@
         </div>
     </div>
     {% endfor %}
+    </div>
 </div>
 {% endif %}
 
@@ -71,6 +84,7 @@
 <div class="threads-section">
     <h3 class="section-title">📝 最新串</h3>
     
+    <div id="normalThreadsList">
     {% for thread in threads.items %}
     <div class="thread-item">
         <div class="thread-header">
@@ -97,6 +111,7 @@
         </div>
     </div>
     {% endfor %}
+    </div>
 </div>
 
 <!-- 分页 -->
@@ -131,4 +146,139 @@
         <span class="modal-close">&times;</span>
     </div>
 </div>
+
+<!-- 自动刷新脚本 -->
+<script>
+// 自动刷新功能
+class AutoRefresh {
+    constructor() {
+        this.refreshInterval = 30000; // 30秒检查一次
+        this.lastThreadId = {{ threads.items[0].id if threads.items else 0 }};
+        this.isRefreshing = false;
+        this.isPageVisible = true;
+        this.intervalId = null;
+        
+        this.init();
+    }
+    
+    init() {
+        // 只在首页第一页启用自动刷新
+        const currentPage = {{ request.args.get('page', 1) }};
+        if (currentPage > 1) {
+            return;
+        }
+        
+        // 页面可见性检测
+        document.addEventListener('visibilitychange', () => {
+            this.isPageVisible = !document.hidden;
+            if (this.isPageVisible) {
+                this.checkForNewThreads();
+            }
+        });
+        
+        // 启动定时检查
+        this.startAutoRefresh();
+    }
+    
+    startAutoRefresh() {
+        this.intervalId = setInterval(() => {
+            if (this.isPageVisible && !this.isRefreshing) {
+                this.checkForNewThreads();
+            }
+        }, this.refreshInterval);
+    }
+    
+    stopAutoRefresh() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+        }
+    }
+    
+    async checkForNewThreads() {
+        if (this.isRefreshing) return;
+        
+        this.isRefreshing = true;
+        this.showStatus('🔄 检查新内容中...');
+        
+        try {
+            const response = await fetch(`/api/threads/latest?last_id=${this.lastThreadId}`);
+            const data = await response.json();
+            
+            if (data.success && data.has_new_content && data.normal_threads.length > 0) {
+                this.showNewThreadsNotification(data.normal_threads.length);
+                this.lastThreadId = data.latest_thread_id;
+            }
+            
+            this.hideStatus();
+        } catch (error) {
+            console.error('检查新串失败:', error);
+            this.showStatus('❌ 检查失败', 2000);
+        } finally {
+            this.isRefreshing = false;
+        }
+    }
+    
+    showStatus(message, timeout = 0) {
+        const status = document.getElementById('refreshStatus');
+        const messageEl = document.getElementById('refreshMessage');
+        if (status && messageEl) {
+            messageEl.textContent = message;
+            status.style.display = 'block';
+            
+            if (timeout > 0) {
+                setTimeout(() => this.hideStatus(), timeout);
+            }
+        }
+    }
+    
+    hideStatus() {
+        const status = document.getElementById('refreshStatus');
+        if (status) {
+            status.style.display = 'none';
+        }
+    }
+    
+    showNewThreadsNotification(count) {
+        const notification = document.getElementById('newThreadsNotification');
+        const message = document.getElementById('newThreadsMessage');
+        if (notification && message) {
+            message.textContent = `📨 发现 ${count} 个新串，点击刷新查看`;
+            notification.style.display = 'block';
+        }
+    }
+    
+    hideNewThreadsNotification() {
+        const notification = document.getElementById('newThreadsNotification');
+        if (notification) {
+            notification.style.display = 'none';
+        }
+    }
+}
+
+// 刷新串列表
+async function refreshThreads(force = false) {
+    const autoRefresh = window.autoRefresh;
+    if (!autoRefresh) return;
+    
+    if (force) {
+        autoRefresh.hideNewThreadsNotification();
+        window.location.reload();
+        return;
+    }
+    
+    autoRefresh.checkForNewThreads();
+}
+
+// 初始化自动刷新
+document.addEventListener('DOMContentLoaded', () => {
+    window.autoRefresh = new AutoRefresh();
+});
+
+// 页面卸载时清理定时器
+window.addEventListener('beforeunload', () => {
+    if (window.autoRefresh) {
+        window.autoRefresh.stopAutoRefresh();
+    }
+});
+</script>
 {% endblock %} 
