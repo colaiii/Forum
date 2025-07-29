@@ -7,7 +7,7 @@
     {% if current_category == 'timeline' %}
     <a href="{{ url_for('main.index') }}" class="btn btn-back">⬅ 返回时间线</a>
     {% else %}
-    <a href="{{ url_for('main.index', category=current_category) }}" class="btn btn-back">⬅ 返回{{ categories|selectattr('0', 'equalto', current_category)|first|last.name if categories|selectattr('0', 'equalto', current_category)|first else '板块' }}</a>
+    <a href="{{ url_for('main.index', category=current_category) }}" class="btn btn-back">⬅ 返回{{ (categories|selectattr('0', 'equalto', current_category)|first|last).name if categories|selectattr('0', 'equalto', current_category)|first else '板块' }}</a>
     {% endif %}
 </div>
 
