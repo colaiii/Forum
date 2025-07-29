@@ -9,6 +9,7 @@ class Thread(db.Model):
     content = db.Column(db.Text, nullable=False)
     cookie_id = db.Column(db.String(32), nullable=False)  # 饼干ID
     image_url = db.Column(db.String(255), nullable=True)  # 图片URL
+    category = db.Column(db.String(20), nullable=False, default='timeline')  # 板块分类
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_reply_at = db.Column(db.DateTime, default=datetime.utcnow)
     reply_count = db.Column(db.Integer, default=0)
@@ -26,6 +27,7 @@ class Thread(db.Model):
             'content': self.content,
             'cookie_id': self.cookie_id,
             'image_url': self.image_url,
+            'category': self.category,
             'created_at': self.created_at.isoformat(),
             'last_reply_at': self.last_reply_at.isoformat(),
             'reply_count': self.reply_count,

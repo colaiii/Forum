@@ -4,13 +4,32 @@
 
 {% block content %}
 <div class="thread-nav">
-    <a href="{{ url_for('main.index') }}" class="btn btn-back">⬅ 返回首页</a>
+    {% if current_category == 'timeline' %}
+    <a href="{{ url_for('main.index') }}" class="btn btn-back">⬅ 返回时间线</a>
+    {% else %}
+    <a href="{{ url_for('main.index', category=current_category) }}" class="btn btn-back">⬅ 返回{{ categories|selectattr('0', 'equalto', current_category)|first|last.name if categories|selectattr('0', 'equalto', current_category)|first else '板块' }}</a>
+    {% endif %}
 </div>
 
 <div class="new-thread-section">
     <h2>📝 发表新串</h2>
     
     <form id="newThreadForm" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="threadCategory">选择板块:</label>
+            <select id="threadCategory" name="category" required>
+                {% for category_key, category_data in categories %}
+                {% if category_key != 'timeline' %}
+                <option value="{{ category_key }}" 
+                        {{ 'selected' if current_category == category_key else '' }}
+                        style="color: {{ category_data.color }}">
+                    {{ category_data.icon }} {{ category_data.name }} - {{ category_data.description }}
+                </option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        
         <div class="form-group">
             <label for="threadTitle">标题:</label>
             <input type="text" id="threadTitle" name="title" maxlength="100" placeholder="输入串标题..." required>
@@ -39,6 +58,7 @@
                 <li>尊重他人，理性讨论</li>
                 <li>图片内容请符合校园网规范</li>
                 <li>本论坛为匿名论坛，通过饼干系统识别用户</li>
+                <li>请选择合适的板块发表内容</li>
             </ul>
         </div>
         
@@ -49,62 +69,105 @@
     </form>
 </div>
 
+<!-- 成功提示 -->
+<div id="successMessage" class="message success" style="display: none;">
+    <span id="successText">串发表成功！</span>
+    <div class="success-actions">
+        <a id="viewThreadLink" href="#" class="btn btn-primary btn-sm">查看串</a>
+        <button onclick="hideMessage('successMessage')" class="btn btn-secondary btn-sm">关闭</button>
+    </div>
+</div>
+
+<!-- 错误提示 -->
+<div id="errorMessage" class="message error" style="display: none;">
+    <span id="errorText">发生错误</span>
+    <button onclick="hideMessage('errorMessage')" class="btn btn-secondary btn-sm">关闭</button>
+</div>
+
+<!-- 加载提示 -->
+<div id="loadingMessage" class="message loading" style="display: none;">
+    <span>🚀 正在发表串...</span>
+</div>
+
+<!-- 频率限制提示 -->
+<div id="rateLimitMessage" class="message warning" style="display: none;">
+    <div id="rateLimitContent">
+        <span id="rateLimitText">发串频率限制</span>
+        <div class="rate-limit-info">
+            <div>当前尝试次数: <span id="currentAttempts">0</span>/<span id="maxAttempts">3</span></div>
+            <div>等待时间: <span id="waitTime">0</span> 秒</div>
+        </div>
+    </div>
+    <button onclick="hideMessage('rateLimitMessage')" class="btn btn-secondary btn-sm">关闭</button>
+</div>
+
 <script>
+// DOM 元素
+const form = document.getElementById('newThreadForm');
+const titleInput = document.getElementById('threadTitle');
+const titleCount = document.getElementById('titleCount');
+const contentTextarea = document.getElementById('threadContent');
+const imageInput = document.getElementById('threadImage');
+const imagePreview = document.getElementById('imagePreview');
+
 // 标题字符计数
-document.getElementById('threadTitle').addEventListener('input', function() {
-    const count = this.value.length;
-    document.getElementById('titleCount').textContent = count;
-    
-    if (count > 100) {
-        this.style.borderColor = '#ff4757';
-    } else {
-        this.style.borderColor = '';
-    }
+titleInput.addEventListener('input', function() {
+    titleCount.textContent = this.value.length;
 });
 
 // 图片预览
-document.getElementById('threadImage').addEventListener('change', function(e) {
+imageInput.addEventListener('change', function(e) {
     const file = e.target.files[0];
-    const preview = document.getElementById('imagePreview');
+    imagePreview.innerHTML = '';
     
     if (file) {
         // 检查文件大小
         if (file.size > 16 * 1024 * 1024) {
-            alert('图片大小超过16MB限制');
+            showMessage('errorMessage', '图片文件过大，最大支持16MB');
             this.value = '';
             return;
         }
         
+        // 显示预览
         const reader = new FileReader();
         reader.onload = function(e) {
-            preview.innerHTML = `
-                <div class="preview-item">
-                    <img src="${e.target.result}" alt="预览">
-                    <div class="preview-info">
-                        <span>${file.name}</span>
-                        <span>${(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                    </div>
-                </div>
-            `;
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.maxWidth = '300px';
+            img.style.maxHeight = '200px';
+            img.style.borderRadius = '8px';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = '移除图片';
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-sm btn-secondary';
+            removeBtn.style.marginLeft = '10px';
+            removeBtn.onclick = function() {
+                imageInput.value = '';
+                imagePreview.innerHTML = '';
+            };
+            
+            const previewContainer = document.createElement('div');
+            previewContainer.style.display = 'flex';
+            previewContainer.style.alignItems = 'center';
+            previewContainer.style.marginTop = '10px';
+            previewContainer.appendChild(img);
+            previewContainer.appendChild(removeBtn);
+            
+            imagePreview.appendChild(previewContainer);
         };
         reader.readAsDataURL(file);
-    } else {
-        preview.innerHTML = '';
     }
 });
 
-// 提交表单
-document.getElementById('newThreadForm').addEventListener('submit', async function(e) {
+// 表单提交
+form.addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
+    const formData = new FormData(this);
     
     // 显示加载状态
-    submitBtn.textContent = '发表中...';
-    submitBtn.disabled = true;
-    
-    const formData = new FormData(this);
+    showMessage('loadingMessage');
     
     try {
         const response = await fetch('/api/threads', {
@@ -114,19 +177,77 @@ document.getElementById('newThreadForm').addEventListener('submit', async functi
         
         const result = await response.json();
         
-        if (result.success) {
-            // 成功后跳转到新创建的串
-            window.location.href = `/thread/${result.thread_id}`;
+        hideMessage('loadingMessage');
+        
+        if (response.ok && result.success) {
+            // 成功
+            document.getElementById('successText').textContent = result.message || '串发表成功！';
+            document.getElementById('viewThreadLink').href = `/thread/${result.thread_id}`;
+            showMessage('successMessage');
+            
+            // 清空表单
+            form.reset();
+            imagePreview.innerHTML = '';
+            titleCount.textContent = '0';
+            
+        } else if (response.status === 429 && result.rate_limit) {
+            // 频率限制
+            showRateLimitMessage(result);
         } else {
-            alert(result.error || '发表失败');
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
+            // 其他错误
+            showMessage('errorMessage', result.error || '发表失败');
         }
+        
     } catch (error) {
-        console.error('Error:', error);
-        alert('网络错误，请重试');
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
+        hideMessage('loadingMessage');
+        console.error('提交错误:', error);
+        showMessage('errorMessage', '网络错误，请检查连接');
+    }
+});
+
+// 显示消息
+function showMessage(messageId, text = '') {
+    // 隐藏其他消息
+    hideAllMessages();
+    
+    const message = document.getElementById(messageId);
+    if (text && messageId !== 'loadingMessage') {
+        const textElement = message.querySelector('span');
+        if (textElement) {
+            textElement.textContent = text;
+        }
+    }
+    message.style.display = 'block';
+}
+
+// 隐藏消息
+function hideMessage(messageId) {
+    document.getElementById(messageId).style.display = 'none';
+}
+
+// 隐藏所有消息
+function hideAllMessages() {
+    const messages = ['successMessage', 'errorMessage', 'loadingMessage', 'rateLimitMessage'];
+    messages.forEach(id => hideMessage(id));
+}
+
+// 显示频率限制消息
+function showRateLimitMessage(rateLimitData) {
+    const message = document.getElementById('rateLimitMessage');
+    document.getElementById('rateLimitText').textContent = rateLimitData.error || '发串过于频繁';
+    document.getElementById('currentAttempts').textContent = rateLimitData.rate_limit.current_attempts;
+    document.getElementById('maxAttempts').textContent = rateLimitData.rate_limit.max_attempts;
+    document.getElementById('waitTime').textContent = rateLimitData.rate_limit.wait_time;
+    
+    showMessage('rateLimitMessage');
+}
+
+// 快捷键支持
+document.addEventListener('keydown', function(e) {
+    // Ctrl+Enter 提交表单
+    if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        form.dispatchEvent(new Event('submit'));
     }
 });
 </script>

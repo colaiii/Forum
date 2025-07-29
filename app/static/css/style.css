@@ -11,6 +11,7 @@ body {
     line-height: 1.6;
     color: #333;
     background-color: #f5f5f5;
+    padding-top: 90px; /* 为固定header留出空间 */
 }
 
 /* 容器 */
@@ -26,6 +27,11 @@ body {
     color: white;
     padding: 1rem 0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2000;
 }
 
 .header .container {
@@ -592,20 +598,24 @@ body {
 
 /* 底部 */
 .footer {
-    background-color: #2c3e50;
-    color: #ecf0f1;
+    color: #666;
     padding: 1rem 0;
     text-align: center;
     font-size: 12px;
+    background-color: #f8f9fa;
 }
 
 .footer-tip {
     margin-top: 0.5rem;
-    color: #95a5a6;
+    color: #888;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+    body {
+        padding-top: 130px; /* 移动设备上header更高 */
+    }
+    
     .container {
         padding: 0 10px;
     }

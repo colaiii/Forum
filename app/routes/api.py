@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 from app.models.thread import Thread
 from app.models.reply import Reply
 from app.utils.cookie_manager import CookieManager
+from app.utils.categories import is_valid_category
 from app import db
 import os
 import uuid
@@ -62,12 +63,17 @@ def create_thread():
         # 获取表单数据
         title = request.form.get('title', '').strip()
         content = request.form.get('content', '').strip()
+        category = request.form.get('category', 'timeline').strip()
         
         if not title or not content:
             return jsonify({'error': '标题和内容不能为空'}), 400
         
         if len(title) > 100:
             return jsonify({'error': '标题过长'}), 400
+        
+        # 验证板块
+        if not is_valid_category(category):
+            category = 'timeline'
         
         # 处理图片上传
         image_url = None
@@ -93,7 +99,8 @@ def create_thread():
             title=title,
             content=content,
             cookie_id=cookie_id,
-            image_url=image_url
+            image_url=image_url,
+            category=category
         )
         
         db.session.add(thread)
