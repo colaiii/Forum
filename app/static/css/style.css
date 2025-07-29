@@ -853,7 +853,7 @@ body {
     max-height: 80vh;
     display: flex;
     flex-direction: column;
-    margin: 5% auto;
+    margin: 8% auto 5%;
     padding: 0;
     overflow: hidden;
 }
@@ -1092,7 +1092,7 @@ body {
 @media (max-width: 768px) {
     .cookie-manager-modal {
         max-width: 95%;
-        margin: 2% auto;
+        margin: 6% auto 2%;
         max-height: 90vh;
     }
     
@@ -1529,219 +1529,413 @@ body {
     }
 } 
 
-/* 自定义确认和输入弹窗样式 - 重写版本 */
-.custom-confirm-modal,
-.custom-prompt-modal {
+/* 现代化确认弹窗样式 */
+.custom-confirm-modal {
     background: white;
-    border-radius: 8px;
-    max-width: 400px;
-    margin: 20% auto;
+    border-radius: 20px;
+    max-width: 420px;
+    margin: 15% auto;
     padding: 0;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15), 0 10px 40px rgba(0,0,0,0.1);
     position: relative;
+    transform: scale(0.9);
+    opacity: 0;
+    animation: modalFadeIn 0.3s ease forwards;
+    backdrop-filter: blur(20px);
 }
 
-.custom-confirm-modal *,
-.custom-prompt-modal * {
+.custom-confirm-modal * {
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
     text-orientation: mixed;
     writing-mode: horizontal-tb;
     direction: ltr;
 }
 
-.custom-confirm-modal .modal-header,
-.custom-prompt-modal .modal-header {
-    background-color: #3498db;
+/* 弹窗头部 */
+.confirm-modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 15px 20px;
-    margin: 0;
-    border-radius: 8px 8px 0 0;
-    display: block;
+    padding: 24px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
 }
 
-.custom-confirm-modal .modal-header h3,
-.custom-prompt-modal .modal-header h3 {
+.confirm-modal-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+.confirm-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.confirm-icon svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+}
+
+.confirm-modal-header h3 {
     margin: 0;
     font-size: 18px;
-    font-weight: normal;
-    display: block;
-    text-align: left;
-    line-height: 1.4;
-}
-
-.custom-confirm-modal .modal-body,
-.custom-prompt-modal .modal-body {
-    padding: 20px;
-    display: block;
-}
-
-.custom-confirm-modal .modal-body p,
-.custom-prompt-modal .modal-body p {
-    margin: 0 0 20px 0;
-    font-size: 14px;
-    color: #333;
-    display: block;
-    text-align: left;
-    line-height: 1.5;
-}
-
-.confirm-actions,
-.prompt-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 20px;
-}
-
-.custom-prompt-modal .form-control {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    margin-bottom: 15px;
-    display: block;
-}
-
-.custom-prompt-modal .form-control:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-}
-
-.confirm-actions .btn,
-.prompt-actions .btn {
-    min-width: 80px;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    display: inline-block;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
     text-align: center;
-    line-height: 1.4;
 }
 
-.confirm-actions .btn:hover,
-.prompt-actions .btn:hover {
-    opacity: 0.9;
+/* 弹窗主体 */
+.confirm-modal-body {
+    padding: 32px 24px 24px;
+    text-align: center;
+}
+
+.confirm-modal-body p {
+    margin: 0 0 32px;
+    font-size: 16px;
+    color: #374151;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+/* 按钮组 */
+.confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.btn-modal {
+    min-width: 120px;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    letter-spacing: -0.01em;
+}
+
+.btn-modal svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-modal:hover::before {
+    left: 100%;
+}
+
+.btn-cancel {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+}
+
+.btn-cancel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+}
+
+.btn-cancel:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+.btn-confirm:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+/* 动画效果 */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes shimmer {
+    0%, 100% {
+        transform: rotate(0deg);
+        opacity: 0.3;
+    }
+    50% {
+        transform: rotate(180deg);
+        opacity: 0.1;
+    }
 }
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-    .custom-confirm-modal,
-    .custom-prompt-modal {
+    .custom-confirm-modal {
         max-width: 90%;
-        margin: 30% auto;
+        margin: 25% auto;
+        border-radius: 16px;
     }
     
-    .custom-confirm-modal .modal-header,
-    .custom-prompt-modal .modal-header {
-        padding: 12px 15px;
+    .confirm-modal-header {
+        padding: 24px 20px;
     }
     
-    .custom-confirm-modal .modal-header h3,
-    .custom-prompt-modal .modal-header h3 {
+    .confirm-icon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 12px;
+    }
+    
+    .confirm-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .confirm-modal-header h3 {
         font-size: 16px;
+        white-space: nowrap;
     }
     
-    .custom-confirm-modal .modal-body,
-    .custom-prompt-modal .modal-body {
-        padding: 15px;
+    .confirm-modal-body {
+        padding: 24px 20px 20px;
     }
     
-    .custom-confirm-modal .modal-body p,
-    .custom-prompt-modal .modal-body p {
+    .confirm-modal-body p {
         font-size: 15px;
-        margin-bottom: 15px;
+        margin-bottom: 28px;
     }
     
-    .confirm-actions,
-    .prompt-actions {
+    .confirm-actions {
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
     }
     
-    .confirm-actions .btn,
-    .prompt-actions .btn {
+    .btn-modal {
         width: 100%;
-        padding: 12px;
+        padding: 16px 24px;
         font-size: 16px;
+        border-radius: 12px;
     }
     
-    .custom-prompt-modal .form-control {
-        padding: 12px;
-        font-size: 16px;
+    .btn-modal svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* 触摸友好的按钮效果 */
+    .btn-modal:active {
+        transform: scale(0.98);
     }
 } 
 
-/* 移动端弹窗适配 - 针对内联样式弹窗 */
+/* 现代化输入弹窗样式 */
+.custom-prompt-modal {
+    background: white;
+    border-radius: 20px;
+    max-width: 420px;
+    margin: 15% auto;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15), 0 10px 40px rgba(0,0,0,0.1);
+    position: relative;
+    transform: scale(0.9);
+    opacity: 0;
+    animation: modalFadeIn 0.3s ease forwards;
+    backdrop-filter: blur(20px);
+}
+
+.custom-prompt-modal * {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+    text-orientation: mixed;
+    writing-mode: horizontal-tb;
+    direction: ltr;
+}
+
+/* 输入弹窗头部 */
+.prompt-modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 24px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.prompt-modal-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+.prompt-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.prompt-icon svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+}
+
+.prompt-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* 输入弹窗主体 */
+.prompt-modal-body {
+    padding: 32px 24px 24px;
+    text-align: center;
+}
+
+.prompt-modal-body p {
+    margin: 0 0 24px;
+    font-size: 16px;
+    color: #374151;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+.prompt-input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 16px;
+    margin-bottom: 24px;
+    background: #f9fafb;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.prompt-input:focus {
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+/* 输入弹窗按钮组 */
+.prompt-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+/* 移动端输入弹窗适配 */
 @media (max-width: 768px) {
-    #customConfirmModal .modal-content,
-    #customPromptModal .modal-content {
-        max-width: 85% !important;
-        margin: 25% auto !important;
-        border-radius: 16px !important;
+    .custom-prompt-modal {
+        max-width: 90%;
+        margin: 25% auto;
+        border-radius: 16px;
     }
     
-    #customConfirmModal h3,
-    #customPromptModal h3 {
-        font-size: 16px !important;
-        padding: 16px !important;
+    .prompt-modal-header {
+        padding: 24px 20px;
     }
     
-    #customConfirmModal p,
-    #customPromptModal p {
-        font-size: 15px !important;
-        padding: 0 8px !important;
+    .prompt-icon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 12px;
     }
     
-    #customConfirmModal > div > div:first-child,
-    #customPromptModal > div > div:first-child {
-        border-radius: 16px 16px 0 0 !important;
+    .prompt-icon svg {
+        width: 20px;
+        height: 20px;
     }
     
-    #customConfirmModal > div > div:last-child,
-    #customPromptModal > div > div:last-child {
-        padding: 20px !important;
+    .prompt-modal-header h3 {
+        font-size: 16px;
+        white-space: nowrap;
     }
     
-    #customConfirmModal div[style*="display: flex"],
-    #customPromptModal div[style*="display: flex"] {
-        flex-direction: column !important;
-        gap: 12px !important;
-        margin-top: 24px !important;
+    .prompt-modal-body {
+        padding: 24px 20px 20px;
     }
     
-    #customConfirmModal button,
-    #customPromptModal button {
-        width: 100% !important;
-        padding: 14px !important;
-        font-size: 16px !important;
-        border-radius: 10px !important;
-        font-weight: 600 !important;
+    .prompt-modal-body p {
+        font-size: 15px;
+        margin-bottom: 20px;
     }
     
-    #promptInput {
-        font-size: 16px !important;
-        padding: 16px !important;
-        border-radius: 10px !important;
-        margin-bottom: 16px !important;
+    .prompt-input {
+        padding: 16px;
+        font-size: 16px;
+        margin-bottom: 24px;
     }
     
-    /* 优化触控体验 */
-    #customConfirmModal button:active,
-    #customPromptModal button:active {
-        transform: scale(0.98) !important;
-        opacity: 0.8 !important;
-    }
-    
-    /* 输入框聚焦效果 */
-    #promptInput:focus {
-        border-color: #667eea !important;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-        background-color: white !important;
+    .prompt-actions {
+        flex-direction: column;
+        gap: 12px;
     }
 } 
