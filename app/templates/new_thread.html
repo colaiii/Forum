@@ -250,5 +250,43 @@ document.addEventListener('keydown', function(e) {
         form.dispatchEvent(new Event('submit'));
     }
 });
+
+// 在发新串页面将侧边栏按钮改为返回按钮
+document.addEventListener('DOMContentLoaded', () => {
+    // 获取移动端菜单按钮
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    
+    if (mobileMenuBtn && window.innerWidth <= 768) {
+        // 修改按钮样式为返回按钮
+        mobileMenuBtn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 12H5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 19L5 12L12 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        `;
+        
+        // 移除原有的点击事件和类名
+        mobileMenuBtn.removeAttribute('onclick');
+        mobileMenuBtn.classList.remove('active');
+        mobileMenuBtn.setAttribute('aria-label', '返回');
+        
+        // 添加返回功能
+        mobileMenuBtn.addEventListener('click', () => {
+            // 根据当前分类返回对应页面
+            {% if current_category == 'timeline' %}
+                window.location.href = "{{ url_for('main.index') }}";
+            {% else %}
+                window.location.href = "{{ url_for('main.index', category=current_category) }}";
+            {% endif %}
+        });
+        
+        // 修改按钮样式和添加类名
+        mobileMenuBtn.classList.add('back-btn');
+        mobileMenuBtn.style.background = 'rgba(233, 76, 76, 0.9)';
+        mobileMenuBtn.style.padding = '8px';
+        mobileMenuBtn.style.width = '40px';
+        mobileMenuBtn.style.height = '40px';
+    }
+});
 </script>
 {% endblock %} 

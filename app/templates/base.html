@@ -10,9 +10,17 @@
 <body>
     <header class="header">
         <div class="container">
+            <!-- 移动端菜单按钮（集成到header左侧） -->
+            <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="切换菜单">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            
             <h1 class="logo">
                 <a href="{{ url_for('main.index') }}">🍪 校园网匿名论坛</a>
             </h1>
+            
             <nav class="nav">
                 <a href="{{ url_for('main.index') }}" class="nav-link">首页</a>
                 <button class="nav-link" onclick="showRulesModal()" style="background: none; border: none; color: inherit; cursor: pointer;">规则</button>
@@ -299,7 +307,30 @@
         </div>
     </footer>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}?v=20250128-3"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=20250128-8"></script>
+    
+    <script>
+    // 确保所有弹窗点击遮罩层时也能恢复按钮状态
+    document.addEventListener('DOMContentLoaded', function() {
+        // 为所有模态框添加点击遮罩层关闭功能
+        const modals = ['rulesModal', 'cookieManagerModal', 'imageModal', 'customConfirmModal', 'customPromptModal'];
+        
+        modals.forEach(modalId => {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        // 恢复移动端按钮状态
+                        if (typeof restoreMenuButton === 'function') {
+                            restoreMenuButton();
+                        }
+                    }
+                });
+            }
+        });
+    });
+    </script>
+    
     {% block scripts %}{% endblock %}
 </body>
 </html> 
