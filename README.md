@@ -41,16 +41,19 @@
 git clone https://github.com/colaiii/Forum.git
 cd Forum
 
-# 2. 启动服务
+# 2. 构建镜像
+docker compose build
+
+# 3. 启动服务
 docker compose up -d
 
-# 3. 等待就绪 (约30秒)
+# 4. 等待就绪 (约30秒)
 docker compose logs -f web
 
-# 4. 生成演示数据 (推荐)
+# 5. 生成演示数据 (推荐)
 docker compose exec web python demo.py
 
-# 5. 访问论坛
+# 6. 访问论坛
 浏览器打开: http://localhost:8080
 ```
 
