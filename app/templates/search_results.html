@@ -72,9 +72,16 @@
             </a>
         </h4>
         <div class="thread-content">
-            {% if thread.image_url %}
-            <div class="thread-image">
-                <img src="{{ thread.image_url }}" alt="图片" onclick="showImageModal(this.src)">
+            {% if thread.get_image_urls() %}
+            <div class="thread-images">
+                {% for image_url in thread.get_image_urls()[:2] %}
+                <div class="thread-image">
+                    <img src="{{ image_url }}" alt="图片" onclick="showImageModal(this.src)">
+                </div>
+                {% endfor %}
+                {% if thread.get_image_urls()|length > 2 %}
+                <div class="more-images">+{{ thread.get_image_urls()|length - 2 }}张图片</div>
+                {% endif %}
             </div>
             {% endif %}
             <div class="markdown-preview search-preview">

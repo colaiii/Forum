@@ -52,7 +52,10 @@ def index(category='timeline'):
 @main_bp.route('/thread/<int:thread_id>')
 def view_thread(thread_id):
     """查看串详情"""
-    thread = Thread.query.get_or_404(thread_id)
+    thread = Thread.query.get(thread_id)
+    if not thread:
+        from flask import abort
+        abort(404)
     
     # 获取或创建饼干
     cookie_id = CookieManager.get_or_create_cookie(request)

@@ -44,9 +44,9 @@
         </div>
         
         <div class="form-group">
-            <label for="threadImage">图片 (可选):</label>
-            <input type="file" id="threadImage" name="image" accept="image/*">
-            <div class="file-info">支持 PNG, JPG, GIF, WebP 格式，最大 16MB</div>
+            <label for="threadImages">图片 (可选):</label>
+            <input type="file" id="threadImages" name="images" accept="image/*" multiple>
+            <div class="file-info">支持 PNG, JPG, GIF, WebP 格式，每张最大 16MB，最多可选择5张图片</div>
             <div class="image-preview" id="imagePreview"></div>
         </div>
         
@@ -67,6 +67,33 @@
             <button type="button" class="btn btn-secondary" onclick="history.back()">取消</button>
         </div>
     </form>
+</div>
+
+<!-- 图片限制提示弹窗 -->
+<div id="imageLimitModal" class="modal" onclick="hideImageLimitModal()">
+    <div class="modal-content image-limit-modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2>⚠️ 图片数量限制</h2>
+            <span class="modal-close" onclick="hideImageLimitModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="limit-message">
+                <h3>最多只能选择5张图片</h3>
+                <p>您已经选择了图片，无法再添加更多图片。</p>
+                <div class="suggestions">
+                    <h4>您可以：</h4>
+                    <ul>
+                        <li>删除一些已选择的图片后再添加新图片</li>
+                        <li>调整图片选择，保持在5张以内</li>
+                        <li>分多次发串来分享更多图片</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="hideImageLimitModal()">我知道了</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- 成功提示 -->
@@ -107,7 +134,7 @@ const form = document.getElementById('newThreadForm');
 const titleInput = document.getElementById('threadTitle');
 const titleCount = document.getElementById('titleCount');
 const contentTextarea = document.getElementById('threadContent');
-const imageInput = document.getElementById('threadImage');
+const imageInput = document.getElementById('threadImages');
 const imagePreview = document.getElementById('imagePreview');
 
 // 标题字符计数
@@ -115,50 +142,139 @@ titleInput.addEventListener('input', function() {
     titleCount.textContent = this.value.length;
 });
 
-// 图片预览
+// 多图片预览功能
+let selectedFiles = new DataTransfer();
+
 imageInput.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    imagePreview.innerHTML = '';
+    const files = Array.from(e.target.files);
     
-    if (file) {
+    // 检查文件数量限制
+    if (selectedFiles.files.length + files.length > 5) {
+        showImageLimitModal();
+        // 重置文件选择器，但保持已选择的文件
+        imageInput.files = selectedFiles.files;
+        return;
+    }
+    
+    files.forEach(file => {
         // 检查文件大小
         if (file.size > 16 * 1024 * 1024) {
-            showMessage('errorMessage', '图片文件过大，最大支持16MB');
-            this.value = '';
+            showMessage('errorMessage', `图片 ${file.name} 过大，最大支持16MB`);
             return;
         }
         
-        // 显示预览
+        // 检查文件类型
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            showMessage('errorMessage', `不支持的文件格式: ${file.name}`);
+            return;
+        }
+        
+        // 添加到选中文件列表
+        selectedFiles.items.add(file);
+    });
+    
+    // 更新input的files
+    imageInput.files = selectedFiles.files;
+    
+    // 更新预览
+    updateImagePreview();
+});
+
+function updateImagePreview() {
+    imagePreview.innerHTML = '';
+    
+    const files = Array.from(selectedFiles.files);
+    files.forEach((file, index) => {
         const reader = new FileReader();
         reader.onload = function(e) {
+            const previewContainer = document.createElement('div');
+            previewContainer.className = 'image-preview-item';
+            previewContainer.style.cssText = `
+                display: flex;
+                align-items: center;
+                margin: 10px 0;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                background: #f9f9f9;
+                position: relative;
+            `;
+            
+            const imgContainer = document.createElement('div');
+            imgContainer.style.cssText = `
+                position: relative;
+                margin-right: 15px;
+                flex-shrink: 0;
+            `;
+            
             const img = document.createElement('img');
             img.src = e.target.result;
-            img.style.maxWidth = '300px';
-            img.style.maxHeight = '200px';
-            img.style.borderRadius = '8px';
+            img.style.cssText = `
+                max-width: 120px;
+                max-height: 120px;
+                border-radius: 4px;
+                display: block;
+            `;
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.style.flex = '1';
+            infoDiv.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 5px;">${file.name}</div>
+                <div style="color: #666; font-size: 0.9em;">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+            `;
             
             const removeBtn = document.createElement('button');
-            removeBtn.textContent = '移除图片';
+            removeBtn.innerHTML = '&times;';
             removeBtn.type = 'button';
-            removeBtn.className = 'btn btn-sm btn-secondary';
-            removeBtn.style.marginLeft = '10px';
+            removeBtn.className = 'image-remove-btn';
+            removeBtn.title = '移除图片';
             removeBtn.onclick = function() {
-                imageInput.value = '';
-                imagePreview.innerHTML = '';
+                removeImage(index);
             };
             
-            const previewContainer = document.createElement('div');
-            previewContainer.style.display = 'flex';
-            previewContainer.style.alignItems = 'center';
-            previewContainer.style.marginTop = '10px';
-            previewContainer.appendChild(img);
-            previewContainer.appendChild(removeBtn);
-            
+            imgContainer.appendChild(img);
+            imgContainer.appendChild(removeBtn);
+            previewContainer.appendChild(imgContainer);
+            previewContainer.appendChild(infoDiv);
             imagePreview.appendChild(previewContainer);
         };
         reader.readAsDataURL(file);
+    });
+    
+    if (files.length === 0) {
+        imagePreview.innerHTML = '<div style="color: #666; font-style: italic;">暂未选择图片</div>';
     }
-});
+}
+
+function removeImage(index) {
+    const newFiles = new DataTransfer();
+    const files = Array.from(selectedFiles.files);
+    
+    files.forEach((file, i) => {
+        if (i !== index) {
+            newFiles.items.add(file);
+        }
+    });
+    
+    selectedFiles = newFiles;
+    imageInput.files = selectedFiles.files;
+    updateImagePreview();
+}
+
+// 初始化预览
+updateImagePreview();
+
+// 图片限制弹窗函数
+function showImageLimitModal() {
+    document.getElementById('imageLimitModal').style.display = 'block';
+    document.body.style.overflow = 'hidden'; // 防止背景滚动
+}
+
+function hideImageLimitModal() {
+    document.getElementById('imageLimitModal').style.display = 'none';
+    document.body.style.overflow = ''; // 恢复滚动
+}
 
 // 表单提交
 form.addEventListener('submit', async function(e) {
@@ -180,15 +296,8 @@ form.addEventListener('submit', async function(e) {
         hideMessage('loadingMessage');
         
         if (response.ok && result.success) {
-            // 成功
-            document.getElementById('successText').textContent = result.message || '串发表成功！';
-            document.getElementById('viewThreadLink').href = `/thread/${result.thread_id}`;
-            showMessage('successMessage');
-            
-            // 清空表单
-            form.reset();
-            imagePreview.innerHTML = '';
-            titleCount.textContent = '0';
+            // 成功 - 直接跳转到串详情页
+            window.location.href = `/thread/${result.thread_id}`;
             
         } else if (response.status === 429 && result.rate_limit) {
             // 频率限制

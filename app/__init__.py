@@ -124,4 +124,10 @@ def create_app():
     except:
         pass
     
+    # 注册错误处理器
+    @app.errorhandler(404)
+    def not_found_error(error):
+        from flask import render_template
+        return render_template('404.html'), 404
+    
     return app 

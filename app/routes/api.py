@@ -75,8 +75,10 @@ def create_thread():
         if not is_valid_category(category):
             category = 'timeline'
         
-        # 处理图片上传
-        image_url = None
+        # 处理图片上传（支持多张图片）
+        image_urls = []
+        
+        # 处理单个图片字段（向后兼容）
         if 'image' in request.files:
             file = request.files['image']
             if file and file.filename and allowed_file(file.filename):
@@ -90,7 +92,25 @@ def create_thread():
                 
                 # 处理图片
                 if process_image(file_path):
-                    image_url = f"/uploads/{filename}"
+                    image_urls.append(f"/uploads/{filename}")
+                else:
+                    os.remove(file_path)  # 删除处理失败的文件
+        
+        # 处理多个图片字段
+        uploaded_files = request.files.getlist('images')
+        for file in uploaded_files:
+            if file and file.filename and allowed_file(file.filename):
+                # 生成唯一文件名
+                file_ext = file.filename.rsplit('.', 1)[1].lower()
+                filename = f"{uuid.uuid4().hex}.{file_ext}"
+                file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                
+                # 保存文件
+                file.save(file_path)
+                
+                # 处理图片
+                if process_image(file_path):
+                    image_urls.append(f"/uploads/{filename}")
                 else:
                     os.remove(file_path)  # 删除处理失败的文件
         
@@ -99,9 +119,12 @@ def create_thread():
             title=title,
             content=content,
             cookie_id=cookie_id,
-            image_url=image_url,
             category=category
         )
+        
+        # 设置图片URLs
+        if image_urls:
+            thread.set_image_urls(image_urls)
         
         db.session.add(thread)
         db.session.commit()

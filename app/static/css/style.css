@@ -219,6 +219,18 @@ body {
     margin: 1rem 0;
 }
 
+.thread-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.thread-images .thread-image {
+    margin: 0;
+    flex: 0 0 auto;
+}
+
 .thread-image img, .reply-image img {
     max-width: 300px;
     max-height: 300px;
@@ -229,6 +241,21 @@ body {
 
 .thread-image img:hover, .reply-image img:hover {
     transform: scale(1.05);
+}
+
+.more-images {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border-radius: 4px;
+    padding: 1rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    min-width: 120px;
+    min-height: 80px;
+    text-align: center;
 }
 
 .thread-stats {
@@ -337,11 +364,183 @@ body {
     border-radius: 4px;
 }
 
+.image-preview-item {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+    position: relative;
+}
+
+.image-preview-item img {
+    max-width: 120px;
+    max-height: 120px;
+    border-radius: 4px;
+    display: block;
+}
+
 .preview-info {
     display: flex;
     flex-direction: column;
     font-size: 12px;
     color: #7f8c8d;
+    flex: 1;
+}
+
+/* 图片限制弹窗样式 */
+.modal-content.image-limit-modal {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    min-width: 400px;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    margin: 7% auto 5%;
+    padding: 0;
+    overflow: hidden;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
+.modal-content.image-limit-modal .modal-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    border-radius: 8px 8px 0 0;
+}
+
+.modal-content.image-limit-modal .modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    flex: 1;
+}
+
+.modal-content.image-limit-modal .modal-header .modal-close {
+    position: static;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    margin-left: 1rem;
+    flex-shrink: 0;
+}
+
+.modal-content.image-limit-modal .modal-header .modal-close:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+
+.modal-content.image-limit-modal .modal-body {
+    padding: 2rem;
+    line-height: 1.6;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-content.image-limit-modal .limit-message {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.modal-content.image-limit-modal .limit-message h3 {
+    color: #e74c3c;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.modal-content.image-limit-modal .limit-message p {
+    color: #666;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+.modal-content.image-limit-modal .suggestions {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.modal-content.image-limit-modal .suggestions h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.modal-content.image-limit-modal .suggestions ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.modal-content.image-limit-modal .suggestions li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.modal-content.image-limit-modal .suggestions li:before {
+    content: "💡";
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+}
+
+.modal-content.image-limit-modal .modal-actions {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.modal-content.image-limit-modal .modal-actions .btn {
+    min-width: 120px;
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+}
+
+/* 图片移除按钮基础样式 */
+.image-remove-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    line-height: 1;
+}
+
+.image-remove-btn:hover {
+    background: #c0392b;
+    transform: scale(1.1);
+}
+
+.image-remove-btn:active {
+    transform: scale(0.95);
 }
 
 .form-rules {
@@ -470,7 +669,7 @@ body {
 
 .modal-content {
     position: relative;
-    margin: 5% auto;
+    margin: 10% auto;
     max-width: 90%;
     max-height: 90%;
     display: flex;
@@ -680,6 +879,19 @@ body {
     
     .thread-image img, .reply-image img {
         max-width: 100%;
+    }
+    
+    .thread-images {
+        flex-direction: column;
+    }
+    
+    .thread-images .thread-image {
+        width: 100%;
+    }
+    
+    .more-images {
+        min-height: 60px;
+        min-width: 100px;
     }
     
     .form-actions {
@@ -2133,15 +2345,17 @@ body {
         left: 12px !important;
     }
     
-    /* 隐藏饼干管理和规则弹窗的顶栏 */
+    /* 隐藏饼干管理、规则和图片限制弹窗的顶栏 */
     .cookie-manager-modal .modal-header,
-    .rules-modal .modal-header {
+    .rules-modal .modal-header,
+    .modal-content.image-limit-modal .modal-header {
         display: none !important;
     }
     
     /* 调整弹窗内容区域样式以填充整个弹窗 */
     .cookie-manager-modal .modal-body,
-    .rules-modal .modal-body {
+    .rules-modal .modal-body,
+    .modal-content.image-limit-modal .modal-body {
         padding: 20px 15px !important;
         border-radius: 20px 20px 0 0;
         max-height: calc(100vh - 40px) !important;
@@ -2150,7 +2364,8 @@ body {
     
     /* 调整弹窗整体样式 */
     .cookie-manager-modal,
-    .rules-modal {
+    .rules-modal,
+    .modal-content.image-limit-modal {
         margin: 0 !important;
         max-width: 100% !important;
         border-radius: 20px 20px 0 0 !important;
@@ -2161,6 +2376,33 @@ body {
         top: auto !important;
         transform: none !important;
         max-height: 90vh !important;
+        min-width: auto !important;
+    }
+    
+    /* 移动端图片限制弹窗特殊适配 */
+    .modal-content.image-limit-modal .suggestions {
+        padding: 1rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+    
+    .modal-content.image-limit-modal .suggestions li {
+        padding: 0.4rem 0 !important;
+        padding-left: 2rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .modal-content.image-limit-modal .modal-actions .btn {
+        width: 100% !important;
+        margin: 0.5rem 0 !important;
+    }
+    
+    /* 移动端图片移除按钮优化 */
+    .image-remove-btn {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 18px !important;
+        top: -10px !important;
+        right: -10px !important;
     }
 } 
 

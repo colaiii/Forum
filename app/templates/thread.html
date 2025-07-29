@@ -48,9 +48,13 @@
     <h2 class="thread-title">{{ thread.title }}</h2>
     
     <div class="thread-content">
-        {% if thread.image_url %}
-        <div class="thread-image">
-            <img src="{{ thread.image_url }}" alt="图片" onclick="showImageModal(this.src)">
+        {% if thread.get_image_urls() %}
+        <div class="thread-images">
+            {% for image_url in thread.get_image_urls() %}
+            <div class="thread-image">
+                <img src="{{ image_url }}" alt="图片" onclick="showImageModal(this.src)">
+            </div>
+            {% endfor %}
         </div>
         {% endif %}
                     <div class="content-text markdown-content">{{ thread.content|markdown }}</div>
