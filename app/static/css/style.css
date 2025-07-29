@@ -501,7 +501,7 @@ body {
     max-height: 80vh;
     display: flex;
     flex-direction: column;
-    margin: 5% auto;
+    margin: 7% auto 5%;
     padding: 0;
     overflow: hidden; /* 防止内容溢出 */
 }
