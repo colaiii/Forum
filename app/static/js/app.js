@@ -63,45 +63,57 @@ function convertToBackButton(onClickAction) {
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     
     if (mobileMenuBtn && window.innerWidth <= 768) {
-        // 保存原始状态（如果还没有保存）
-        if (!mobileMenuBtn.hasAttribute('data-original-state')) {
-            mobileMenuBtn.setAttribute('data-original-state', 'true');
-            mobileMenuBtn.setAttribute('data-original-onclick', mobileMenuBtn.getAttribute('onclick') || '');
-            mobileMenuBtn.setAttribute('data-original-html', mobileMenuBtn.innerHTML);
+        try {
+            // 保存原始状态（如果还没有保存）
+            if (!mobileMenuBtn.hasAttribute('data-original-state')) {
+                mobileMenuBtn.setAttribute('data-original-state', 'true');
+                mobileMenuBtn.setAttribute('data-original-onclick', mobileMenuBtn.getAttribute('onclick') || '');
+                mobileMenuBtn.setAttribute('data-original-html', mobileMenuBtn.innerHTML);
+            }
+            
+            // 修改按钮为返回按钮
+            mobileMenuBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 12H5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 19L5 12L12 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `;
+            
+            // 移除原有事件并设置新的返回功能
+            mobileMenuBtn.removeAttribute('onclick');
+            
+            // 移除现有的事件监听器
+            const newBtn = mobileMenuBtn.cloneNode(true);
+            if (mobileMenuBtn.parentNode) {
+                mobileMenuBtn.parentNode.replaceChild(newBtn, mobileMenuBtn);
+                
+                // 设置新的点击事件
+                newBtn.addEventListener('click', function() {
+                    try {
+                        eval(onClickAction);
+                    } catch (error) {
+                        console.error('按钮点击事件执行失败:', error);
+                    }
+                });
+                
+                newBtn.setAttribute('aria-label', '返回');
+                newBtn.classList.add('back-btn');
+                
+                // 设置返回按钮样式
+                newBtn.style.background = 'rgba(233, 76, 76, 0.9)';
+                newBtn.style.width = '36px';
+                newBtn.style.height = '36px';
+                newBtn.style.padding = '6px';
+                newBtn.style.position = 'absolute';
+                newBtn.style.left = '12px';
+                newBtn.style.top = '50%';
+                newBtn.style.transform = 'translateY(-50%)';
+            } else {
+                console.error('无法找到按钮的父元素');
+            }
+        } catch (error) {
+            console.error('转换为返回按钮时发生错误:', error);
         }
-        
-        // 修改按钮为返回按钮
-        mobileMenuBtn.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 12H5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 19L5 12L12 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        `;
-        
-        // 移除原有事件并设置新的返回功能
-        mobileMenuBtn.removeAttribute('onclick');
-        
-        // 移除现有的事件监听器
-        const newBtn = mobileMenuBtn.cloneNode(true);
-        mobileMenuBtn.parentNode.replaceChild(newBtn, mobileMenuBtn);
-        
-        // 设置新的点击事件
-        newBtn.addEventListener('click', function() {
-            eval(onClickAction);
-        });
-        
-        newBtn.setAttribute('aria-label', '返回');
-        newBtn.classList.add('back-btn');
-        
-        // 设置返回按钮样式
-        newBtn.style.background = 'rgba(233, 76, 76, 0.9)';
-        newBtn.style.width = '36px';
-        newBtn.style.height = '36px';
-        newBtn.style.padding = '6px';
-        newBtn.style.position = 'absolute';
-        newBtn.style.left = '12px';
-        newBtn.style.top = '50%';
-        newBtn.style.transform = 'translateY(-50%)';
     }
 }
 
@@ -109,41 +121,52 @@ function restoreMenuButton() {
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     
     if (mobileMenuBtn && window.innerWidth <= 768 && mobileMenuBtn.hasAttribute('data-original-state')) {
-        // 恢复原始HTML内容
-        const originalHtml = mobileMenuBtn.getAttribute('data-original-html');
-        const originalOnclick = mobileMenuBtn.getAttribute('data-original-onclick');
-        
-        mobileMenuBtn.innerHTML = originalHtml;
-        
-        // 恢复原始事件
-        if (originalOnclick) {
-            mobileMenuBtn.setAttribute('onclick', originalOnclick);
-        } else {
-            mobileMenuBtn.removeAttribute('onclick');
-            // 重新绑定菜单切换功能
-            const newBtn = mobileMenuBtn.cloneNode(true);
-            mobileMenuBtn.parentNode.replaceChild(newBtn, mobileMenuBtn);
-            newBtn.addEventListener('click', toggleMobileSidebar);
-            mobileMenuBtn = newBtn;
+        try {
+            // 恢复原始HTML内容
+            const originalHtml = mobileMenuBtn.getAttribute('data-original-html');
+            const originalOnclick = mobileMenuBtn.getAttribute('data-original-onclick');
+            
+            if (originalHtml) {
+                mobileMenuBtn.innerHTML = originalHtml;
+                
+                // 恢复原始事件
+                if (originalOnclick) {
+                    mobileMenuBtn.setAttribute('onclick', originalOnclick);
+                } else {
+                    mobileMenuBtn.removeAttribute('onclick');
+                    // 重新绑定菜单切换功能
+                    const newBtn = mobileMenuBtn.cloneNode(true);
+                    if (mobileMenuBtn.parentNode) {
+                        mobileMenuBtn.parentNode.replaceChild(newBtn, mobileMenuBtn);
+                        newBtn.addEventListener('click', toggleMobileSidebar);
+                    } else {
+                        console.error('无法找到按钮的父元素进行恢复');
+                    }
+                }
+                
+                mobileMenuBtn.setAttribute('aria-label', '切换菜单');
+                mobileMenuBtn.classList.remove('back-btn');
+                
+                // 恢复原始样式
+                mobileMenuBtn.style.background = 'rgba(255, 255, 255, 0.15)';
+                mobileMenuBtn.style.width = '32px';
+                mobileMenuBtn.style.height = '32px';
+                mobileMenuBtn.style.padding = '5px';
+                mobileMenuBtn.style.position = 'absolute';
+                mobileMenuBtn.style.left = '12px';
+                mobileMenuBtn.style.top = '50%';
+                mobileMenuBtn.style.transform = 'translateY(-50%)';
+                
+                // 清除保存的状态
+                mobileMenuBtn.removeAttribute('data-original-state');
+                mobileMenuBtn.removeAttribute('data-original-onclick');
+                mobileMenuBtn.removeAttribute('data-original-html');
+            } else {
+                console.error('无法找到原始HTML内容');
+            }
+        } catch (error) {
+            console.error('恢复按钮状态时发生错误:', error);
         }
-        
-        mobileMenuBtn.setAttribute('aria-label', '切换菜单');
-        mobileMenuBtn.classList.remove('back-btn');
-        
-        // 恢复原始样式
-        mobileMenuBtn.style.background = 'rgba(255, 255, 255, 0.15)';
-        mobileMenuBtn.style.width = '32px';
-        mobileMenuBtn.style.height = '32px';
-        mobileMenuBtn.style.padding = '5px';
-        mobileMenuBtn.style.position = 'absolute';
-        mobileMenuBtn.style.left = '12px';
-        mobileMenuBtn.style.top = '50%';
-        mobileMenuBtn.style.transform = 'translateY(-50%)';
-        
-        // 清除保存的状态
-        mobileMenuBtn.removeAttribute('data-original-state');
-        mobileMenuBtn.removeAttribute('data-original-onclick');
-        mobileMenuBtn.removeAttribute('data-original-html');
     }
 }
 
@@ -194,15 +217,30 @@ function showRulesModal() {
     const cookieModal = document.getElementById('cookieManagerModal');
     if (cookieModal && cookieModal.style.display === 'block') {
         hideCookieManager();
+        // 添加延迟确保饼干管理器完全关闭和按钮状态恢复后再显示规则弹窗
+        setTimeout(() => {
+            showRulesModalInternal();
+        }, 100);
+    } else {
+        showRulesModalInternal();
     }
-    
+}
+
+function showRulesModalInternal() {
     const modal = document.getElementById('rulesModal');
     if (modal) {
         modal.style.display = 'block';
         // 防止页面滚动
         document.body.style.overflow = 'hidden';
         // 在移动端将按钮改为返回按钮
-        convertToBackButton('hideRulesModal()');
+        try {
+            if (typeof convertToBackButton === 'function') {
+                convertToBackButton('hideRulesModal()');
+            }
+        } catch (error) {
+            console.error('转换移动端按钮失败:', error);
+            // 即使按钮转换失败，弹窗仍然正常显示
+        }
     }
 }
 
@@ -213,8 +251,55 @@ function hideRulesModal() {
         // 恢复页面滚动
         document.body.style.overflow = 'auto';
         // 恢复移动端按钮为菜单按钮
-        restoreMenuButton();
+        try {
+            if (typeof restoreMenuButton === 'function') {
+                restoreMenuButton();
+            }
+        } catch (error) {
+            console.error('恢复移动端按钮状态失败:', error);
+        }
     }
+}
+
+// 全局规则弹窗包装函数，提供备用显示机制
+function showRulesModalSafe() {
+    try {
+        showRulesModal();
+    } catch (error) {
+        console.error('显示规则弹窗失败:', error);
+        // 即使按钮转换失败，也尝试直接显示规则弹窗
+        try {
+            const modal = document.getElementById('rulesModal');
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            } else {
+                showToast('规则弹窗加载失败，请刷新页面重试');
+            }
+        } catch (fallbackError) {
+            console.error('规则弹窗备用显示方案也失败:', fallbackError);
+            showToast('规则弹窗加载失败，请刷新页面重试');
+        }
+    }
+}
+
+// 检测当前活动的弹窗
+function getActiveModal() {
+    const modals = ['rulesModal', 'cookieManagerModal', 'imageModal', 'customConfirmModal', 'customPromptModal'];
+    for (const modalId of modals) {
+        const modal = document.getElementById(modalId);
+        if (modal && modal.style.display === 'block') {
+            return modalId;
+        }
+    }
+    return null;
+}
+
+// 检查移动端按钮是否处于返回状态
+function isMobileButtonInBackState() {
+    if (window.innerWidth > 768) return false;
+    const btn = document.querySelector('.mobile-menu-btn');
+    return btn && btn.classList.contains('back-btn');
 }
 
 // 自定义确认弹窗
@@ -420,16 +505,30 @@ class CookieManager {
         const rulesModal = document.getElementById('rulesModal');
         if (rulesModal && rulesModal.style.display === 'block') {
             hideRulesModal();
+            // 添加延迟确保规则弹窗完全关闭和按钮状态恢复后再显示饼干管理器
+            setTimeout(() => {
+                this.showModal();
+            }, 100);
+        } else {
+            this.showModal();
         }
-        
+    }
+    
+    // 实际显示弹窗的内部方法
+    static showModal() {
         const modal = document.getElementById('cookieManagerModal');
         if (modal) {
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
             this.loadCookieData();
             // 在移动端将按钮改为返回按钮
-            if (typeof convertToBackButton === 'function') {
-                convertToBackButton('hideCookieManager()');
+            try {
+                if (typeof convertToBackButton === 'function') {
+                    convertToBackButton('hideCookieManager()');
+                }
+            } catch (error) {
+                console.error('转换移动端按钮失败:', error);
+                // 即使按钮转换失败，弹窗仍然正常显示
             }
         }
     }
@@ -442,7 +541,11 @@ class CookieManager {
             document.body.style.overflow = 'auto';
             // 恢复移动端按钮为菜单按钮
             if (typeof restoreMenuButton === 'function') {
-                restoreMenuButton();
+                try {
+                    restoreMenuButton();
+                } catch (error) {
+                    console.error('恢复移动端按钮状态失败:', error);
+                }
             }
         }
     }
@@ -1011,7 +1114,20 @@ function showCookieManager() {
         CookieManager.show();
     } catch (error) {
         console.error('显示饼干管理器失败:', error);
-        showToast('饼干管理器加载失败，请刷新页面重试');
+        // 即使按钮转换失败，也尝试直接显示饼干管理器
+        try {
+            const modal = document.getElementById('cookieManagerModal');
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                CookieManager.loadCookieData();
+            } else {
+                showToast('饼干管理器加载失败，请刷新页面重试');
+            }
+        } catch (fallbackError) {
+            console.error('饼干管理器备用显示方案也失败:', fallbackError);
+            showToast('饼干管理器加载失败，请刷新页面重试');
+        }
     }
 }
 

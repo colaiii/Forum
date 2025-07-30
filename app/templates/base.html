@@ -58,7 +58,7 @@
             
             <nav class="nav">
                 <a href="{{ url_for('main.index') }}" class="nav-link">首页</a>
-                <button class="nav-link" onclick="showRulesModal()" style="background: none; border: none; color: inherit; cursor: pointer;">规则</button>
+                <button class="nav-link" onclick="showRulesModalSafe()" style="background: none; border: none; color: inherit; cursor: pointer;">规则</button>
                 <button class="nav-link" onclick="showCookieManager()" style="background: none; border: none; color: inherit; cursor: pointer;">🍪 饼干管理</button>
                 <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换深色模式" title="切换深色/浅色模式">
                     <svg id="theme-icon-light" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -369,7 +369,11 @@
                     if (e.target === modal) {
                         // 恢复移动端按钮状态
                         if (typeof restoreMenuButton === 'function') {
-                            restoreMenuButton();
+                            try {
+                                restoreMenuButton();
+                            } catch (error) {
+                                console.error('恢复按钮状态失败:', error);
+                            }
                         }
                     }
                 });
