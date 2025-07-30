@@ -510,11 +510,13 @@ def get_cookie_stats():
         return jsonify({'error': f'获取统计失败: {str(e)}'}), 500
 
 @api_bp.route('/threads/latest', methods=['GET'])
+@api_bp.route('/check-new-threads', methods=['GET'])
 def get_latest_threads():
     """获取最新串数据（用于自动刷新和分类切换）"""
     try:
         # 获取参数
         last_thread_id = request.args.get('last_id', 0, type=int)
+        since_timestamp = request.args.get('since', type=int)
         page = request.args.get('page', 1, type=int)
         category = request.args.get('category', 'timeline')
         per_page = 20
@@ -533,6 +535,37 @@ def get_latest_threads():
             # 特定板块只显示该板块的串
             pinned_threads = Thread.query.filter_by(is_pinned=True, category=category).order_by(Thread.last_reply_at.desc()).all()
             normal_threads_query = Thread.query.filter_by(is_pinned=False, category=category).order_by(Thread.last_reply_at.desc())
+        
+        # 检查自动刷新请求（当提供 since 参数时）
+        if since_timestamp:
+            from datetime import datetime
+            import pytz
+            
+            # 前端传的时间戳是本地时间的毫秒数，直接转为UTC进行比较
+            # 因为前端 Date.now() 返回的是UTC时间戳
+            since_time_utc = datetime.utcfromtimestamp(since_timestamp / 1000)
+            
+            print(f"[DEBUG] since_timestamp: {since_timestamp}")
+            print(f"[DEBUG] since_time_utc: {since_time_utc}")
+            print(f"[DEBUG] current_utc: {datetime.utcnow()}")
+            
+            new_threads = normal_threads_query.filter(Thread.created_at > since_time_utc).all()
+            has_new_threads = len(new_threads) > 0
+            new_count = len(new_threads)
+            
+            print(f"[DEBUG] found {new_count} new threads")
+            
+            # 对于自动刷新检查，返回简化的响应
+            return jsonify({
+                'success': True,
+                'has_new_threads': has_new_threads,
+                'new_count': new_count,
+                'debug_info': {
+                    'since_timestamp': since_timestamp,
+                    'since_time_utc': since_time_utc.isoformat(),
+                    'current_utc': datetime.utcnow().isoformat()
+                }
+            })
         
         # 如果提供了last_thread_id，只获取比这个ID新的串
         if last_thread_id > 0:

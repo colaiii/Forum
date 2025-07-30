@@ -250,7 +250,7 @@ function showRefreshStatus(message) {
 function showNewThreadsNotification(count) {
     const notification = document.getElementById('newThreadsNotification');
     const messageEl = document.getElementById('newThreadsMessage');
-    messageEl.textContent = `📨 发现 ${count} 条新串，点击刷新查看`;
+    messageEl.textContent = '📨 发现新串，点击刷新查看';
     notification.style.display = 'block';
 }
 
@@ -258,6 +258,7 @@ function hideNewThreadsNotification() {
     document.getElementById('newThreadsNotification').style.display = 'none';
 }
 
+// 添加缓存清除参数，避免电脑端和手机端缓存问题
 function checkForNewThreads() {
     if (isRefreshing) return;
     
@@ -265,15 +266,44 @@ function checkForNewThreads() {
     showRefreshStatus('🔄 正在检查新内容...');
     
     const category = '{{ current_category }}';
-    fetch(`/api/check-new-threads?category=${category}&since=${lastRefreshTime}`)
+    const cacheBreaker = Date.now(); // 防止缓存
+    const url = `/api/check-new-threads?category=${category}&since=${lastRefreshTime}&_=${cacheBreaker}`;
+    
+    console.log('[AUTO-REFRESH] 检查新内容...', {
+        category: category,
+        lastRefreshTime: lastRefreshTime,
+        lastRefreshTimeDate: new Date(lastRefreshTime),
+        currentTime: Date.now(),
+        currentTimeDate: new Date(),
+        userAgent: navigator.userAgent
+    });
+    
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+    })
         .then(response => response.json())
         .then(data => {
-            if (data.has_new_threads) {
+            console.log('[AUTO-REFRESH] 检查结果:', data);
+            
+            if (data.has_new_threads && data.new_count > 0) {
+                console.log(`[AUTO-REFRESH] 发现 ${data.new_count} 个新串，显示通知`);
                 showNewThreadsNotification(data.new_count);
+                // 更新最后检查时间，避免重复检测到相同内容
+                lastRefreshTime = Date.now();
+                console.log('[AUTO-REFRESH] 更新lastRefreshTime为:', lastRefreshTime);
+            } else {
+                console.log('[AUTO-REFRESH] 没有新内容');
+                // 即使没有新内容，也要更新检查时间
+                lastRefreshTime = Date.now();
             }
         })
         .catch(error => {
-            console.error('检查新串失败:', error);
+            console.error('[AUTO-REFRESH] 检查新串失败:', error);
             showRefreshStatus('❌ 检查失败');
         })
         .finally(() => {
@@ -299,8 +329,8 @@ function refreshThreads(force = false) {
 
 // 启动自动刷新
 function startAutoRefresh() {
-    // 每30秒检查一次新串
-    refreshInterval = setInterval(checkForNewThreads, 30000);
+    // 每10秒检查一次新串
+    refreshInterval = setInterval(checkForNewThreads, 10000);
 }
 
 // 停止自动刷新

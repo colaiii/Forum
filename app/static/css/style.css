@@ -1827,7 +1827,7 @@ html.theme-loaded body {
     }
     
     .new-threads-notification {
-        top: 50px;
+        top: 100px !important;
         flex-direction: column;
         align-items: stretch;
         gap: 8px;
@@ -2138,7 +2138,7 @@ html.theme-loaded body {
 
 .new-threads-notification {
     position: fixed;
-    top: 60px;
+    top: 110px;
     right: 20px;
     background-color: #28a745;
     color: white;
