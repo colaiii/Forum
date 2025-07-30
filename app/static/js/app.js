@@ -42,12 +42,55 @@ function closeMobileSidebar() {
         sidebar.classList.remove('mobile-open');
         overlay.classList.remove('active');
         menuBtn.classList.remove('active');
-        document.body.style.overflow = ''; // 恢复滚动
+        
+        // 立即恢复body滚动，确保CSS选择器正确更新
+        document.body.style.overflow = '';
+        
+        // 立即确保header按钮可用
+        ensureHeaderButtonsEnabled();
+        
+        // 强制重绘，确保CSS状态更新
+        document.body.offsetHeight;
         
         // 延迟隐藏遮罩层
         setTimeout(() => {
             overlay.style.display = 'none';
+            // 再次确保所有样式都已正确应用
+            ensureHeaderButtonsEnabled();
         }, 300);
+    }
+}
+
+// 确保header按钮可用的辅助函数
+function ensureHeaderButtonsEnabled() {
+    // 确保主题切换按钮可点击
+    const themeToggle = document.querySelector('.theme-toggle');
+    if (themeToggle) {
+        themeToggle.style.pointerEvents = 'auto';
+        themeToggle.style.opacity = '1';
+        themeToggle.style.zIndex = '2100';
+        // 强制移除可能的disabled属性
+        themeToggle.disabled = false;
+        themeToggle.removeAttribute('disabled');
+    }
+    
+    // 确保导航按钮可点击
+    const navButtons = document.querySelectorAll('.nav-link');
+    navButtons.forEach(btn => {
+        btn.style.pointerEvents = 'auto';
+        btn.style.opacity = '1';
+        btn.style.zIndex = '2100';
+        // 强制移除可能的disabled属性
+        btn.disabled = false;
+        btn.removeAttribute('disabled');
+    });
+    
+    // 确保导航容器可交互
+    const nav = document.querySelector('.nav');
+    if (nav) {
+        nav.style.pointerEvents = 'auto';
+        nav.style.opacity = '1';
+        nav.style.zIndex = '2100';
     }
 }
 
@@ -1667,7 +1710,20 @@ const ThemeManager = {
  * 切换主题的全局函数
  */
 function toggleTheme() {
-    return ThemeManager.toggleTheme();
+    try {
+        // 确保主题切换按钮可用
+        const themeToggle = document.querySelector('.theme-toggle');
+        if (themeToggle) {
+            // 临时启用按钮，防止被其他逻辑禁用
+            themeToggle.style.pointerEvents = '';
+            themeToggle.style.opacity = '';
+        }
+        
+        return ThemeManager.toggleTheme();
+    } catch (error) {
+        console.error('主题切换失败:', error);
+        return null;
+    }
 }
 
 /**
@@ -1675,6 +1731,54 @@ function toggleTheme() {
  */
 document.addEventListener('DOMContentLoaded', function() {
     ThemeManager.init();
+    
+    // 定期检查并确保header按钮可用（针对移动端问题）
+    if (window.innerWidth <= 768) {
+        // 频繁检查，确保按钮立即可用
+        setInterval(() => {
+            // 只在没有弹窗打开时检查
+            const activeModal = getActiveModal();
+            if (!activeModal && !isMobileButtonInBackState()) {
+                ensureHeaderButtonsEnabled();
+            }
+        }, 500); // 每500毫秒检查一次
+        
+        // 监听任何可能影响按钮状态的事件
+        document.addEventListener('click', function() {
+            setTimeout(() => {
+                const activeModal = getActiveModal();
+                if (!activeModal && !isMobileButtonInBackState()) {
+                    ensureHeaderButtonsEnabled();
+                }
+            }, 100);
+        });
+        
+        // 在任何触摸或鼠标按下事件前确保按钮可用
+        document.addEventListener('touchstart', function() {
+            ensureHeaderButtonsEnabled();
+        }, true); // 使用捕获阶段
+        
+        document.addEventListener('mousedown', function() {
+            ensureHeaderButtonsEnabled();
+        }, true); // 使用捕获阶段
+        
+        // 监听body样式变化，特别是overflow属性
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                    // 当body样式改变时，立即确保按钮可用
+                    setTimeout(() => {
+                        ensureHeaderButtonsEnabled();
+                    }, 10);
+                }
+            });
+        });
+        
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['style']
+        });
+    }
 });
 
 /**

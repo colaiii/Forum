@@ -2774,6 +2774,21 @@ html.theme-loaded body {
         left: 12px !important;
     }
     
+    /* 确保在任何状态下导航按钮都可用 */
+    body[style*="overflow: hidden"] .nav-link,
+    body[style*="overflow: hidden"] .theme-toggle {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        z-index: 2100 !important;
+    }
+    
+    /* 确保导航区域在任何状态下都可交互 */
+    body[style*="overflow: hidden"] .nav {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        z-index: 2100 !important;
+    }
+    
     /* 隐藏饼干管理、规则和图片限制弹窗的顶栏 */
     .cookie-manager-modal .modal-header,
     .rules-modal .modal-header,
@@ -2902,4 +2917,4 @@ html.theme-loaded body {
         border-left-color: #007bff !important;
         border-bottom: none !important;
     }
-} 
+}

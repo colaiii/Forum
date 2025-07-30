@@ -95,6 +95,13 @@ class CategorySwitcher {
                 // 隐藏加载状态
                 this.showLoading(false);
                 
+                // 确保header按钮可用
+                if (typeof ensureHeaderButtonsEnabled === 'function') {
+                    setTimeout(() => {
+                        ensureHeaderButtonsEnabled();
+                    }, 100);
+                }
+                
                 // 重新启动自动刷新
                 setTimeout(() => {
                     if (window.startAutoRefresh) {
@@ -322,6 +329,13 @@ class CategorySwitcher {
                 window.scrollTo(0, 0);
                 
                 this.showLoading(false);
+                
+                // 确保header按钮可用
+                if (typeof ensureHeaderButtonsEnabled === 'function') {
+                    setTimeout(() => {
+                        ensureHeaderButtonsEnabled();
+                    }, 100);
+                }
             })
             .catch(error => {
                 console.error('加载页面失败:', error);
