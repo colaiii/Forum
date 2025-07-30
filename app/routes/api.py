@@ -9,8 +9,37 @@ import os
 import uuid
 from PIL import Image
 from datetime import datetime
+import pytz
 
 api_bp = Blueprint('api', __name__)
+
+def format_local_time(utc_datetime):
+    """将UTC时间转换为本地时间字符串"""
+    if utc_datetime is None:
+        return ''
+    
+    # 添加UTC时区信息
+    utc_time = utc_datetime.replace(tzinfo=pytz.UTC)
+    
+    # 转换为中国时区
+    china_tz = pytz.timezone('Asia/Shanghai')
+    local_time = utc_time.astimezone(china_tz)
+    
+    return local_time.strftime('%Y-%m-%d %H:%M:%S')
+
+def format_local_time_short(utc_datetime):
+    """将UTC时间转换为短格式的本地时间字符串"""
+    if utc_datetime is None:
+        return ''
+    
+    # 添加UTC时区信息
+    utc_time = utc_datetime.replace(tzinfo=pytz.UTC)
+    
+    # 转换为中国时区
+    china_tz = pytz.timezone('Asia/Shanghai')
+    local_time = utc_time.astimezone(china_tz)
+    
+    return local_time.strftime('%m-%d %H:%M')
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
@@ -530,8 +559,8 @@ def get_latest_threads():
                 'cookie_color': CookieManager.get_cookie_color(thread.cookie_id),
                 'image_urls': thread.get_image_urls(),
                 'category': thread.category,
-                'created_at': thread.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-                'last_reply_at': thread.last_reply_at.strftime('%m-%d %H:%M'),
+                'created_at': format_local_time(thread.created_at),
+                'last_reply_at': format_local_time_short(thread.last_reply_at),
                 'reply_count': thread.reply_count,
                 'is_pinned': thread.is_pinned
             }
@@ -590,7 +619,7 @@ def get_latest_replies(thread_id):
                 'cookie_color': CookieManager.get_cookie_color(reply.cookie_id),
                 'image_url': reply.image_url,
                 'quote_id': reply.quote_id,
-                'created_at': reply.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'created_at': format_local_time(reply.created_at),
                 'thread_id': reply.thread_id
             }
         

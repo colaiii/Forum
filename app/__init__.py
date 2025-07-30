@@ -36,6 +36,22 @@ def create_app():
     app.register_blueprint(api_bp, url_prefix='/api')
     
     # 添加自定义过滤器
+    @app.template_filter('localtime')
+    def localtime_filter(utc_datetime):
+        """将UTC时间转换为本地时间（中国时区 UTC+8）"""
+        if utc_datetime is None:
+            return ''
+        
+        # 添加UTC时区信息
+        import pytz
+        utc_time = utc_datetime.replace(tzinfo=pytz.UTC)
+        
+        # 转换为中国时区
+        china_tz = pytz.timezone('Asia/Shanghai')
+        local_time = utc_time.astimezone(china_tz)
+        
+        return local_time.strftime('%Y-%m-%d %H:%M:%S')
+    
     @app.template_filter('markdown')
     def markdown_filter(text):
         """将Markdown文本转换为HTML"""

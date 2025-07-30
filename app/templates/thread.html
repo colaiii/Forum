@@ -42,7 +42,7 @@
         <span class="thread-cookie" style="color: {{ cookie_manager.get_cookie_color(thread.cookie_id) }}">
             {{ cookie_manager.format_cookie_display(thread.cookie_id) }}
         </span>
-        <span class="thread-time">{{ thread.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+        <span class="thread-time">{{ thread.created_at|localtime }}</span>
     </div>
     
     <h2 class="thread-title">{{ thread.title }}</h2>
@@ -106,7 +106,7 @@
             <span class="reply-cookie" style="color: {{ cookie_manager.get_cookie_color(reply.cookie_id) }}">
                 {{ cookie_manager.format_cookie_display(reply.cookie_id) }}
             </span>
-            <span class="reply-time">{{ reply.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+            <span class="reply-time">{{ reply.created_at|localtime }}</span>
             <button class="btn btn-quote" onclick="quoteReply({{ reply.id }}, '{{ cookie_manager.format_cookie_display(reply.cookie_id) }}')">引用</button>
         </div>
         
