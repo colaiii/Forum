@@ -1373,3 +1373,207 @@ function debugModal() {
 
 // 全局暴露调试函数
 window.debugModal = debugModal;
+
+// ================== 深色模式功能 ==================
+
+/**
+ * 深色模式管理器
+ */
+const ThemeManager = {
+    // 主题类型
+    THEMES: {
+        LIGHT: 'light',
+        DARK: 'dark'
+    },
+    
+    // 本地存储键名
+    STORAGE_KEY: 'forum_theme_preference',
+    
+    /**
+     * 初始化主题系统
+     */
+    init() {
+        // 从本地存储获取用户偏好
+        const savedTheme = this.getSavedTheme();
+        
+        // 如果没有保存的偏好，检查系统偏好
+        const preferredTheme = savedTheme || this.getSystemPreference();
+        
+        // 应用主题
+        this.setTheme(preferredTheme);
+        
+        // 监听系统主题变化
+        this.watchSystemPreference();
+        
+        console.log('深色模式系统初始化完成，当前主题:', preferredTheme);
+    },
+    
+    /**
+     * 获取保存的主题偏好
+     */
+    getSavedTheme() {
+        try {
+            return localStorage.getItem(this.STORAGE_KEY);
+        } catch (e) {
+            console.warn('无法访问localStorage:', e);
+            return null;
+        }
+    },
+    
+    /**
+     * 保存主题偏好
+     */
+    saveTheme(theme) {
+        try {
+            localStorage.setItem(this.STORAGE_KEY, theme);
+        } catch (e) {
+            console.warn('无法保存主题设置:', e);
+        }
+    },
+    
+    /**
+     * 获取系统主题偏好
+     */
+    getSystemPreference() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return this.THEMES.DARK;
+        }
+        return this.THEMES.LIGHT;
+    },
+    
+    /**
+     * 监听系统主题变化
+     */
+    watchSystemPreference() {
+        if (window.matchMedia) {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addEventListener('change', (e) => {
+                // 只有在用户没有手动设置偏好时才跟随系统
+                if (!this.getSavedTheme()) {
+                    const newTheme = e.matches ? this.THEMES.DARK : this.THEMES.LIGHT;
+                    this.setTheme(newTheme);
+                }
+            });
+        }
+    },
+    
+    /**
+     * 设置主题
+     */
+    setTheme(theme) {
+        const validTheme = theme === this.THEMES.DARK ? this.THEMES.DARK : this.THEMES.LIGHT;
+        
+        // 应用到DOM
+        document.documentElement.setAttribute('data-theme', validTheme);
+        
+        // 更新切换按钮图标
+        this.updateToggleIcon(validTheme);
+        
+        // 触发主题变化事件
+        this.dispatchThemeChangeEvent(validTheme);
+        
+        console.log('主题已切换至:', validTheme);
+    },
+    
+    /**
+     * 切换主题
+     */
+    toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || this.THEMES.LIGHT;
+        const newTheme = currentTheme === this.THEMES.DARK ? this.THEMES.LIGHT : this.THEMES.DARK;
+        
+        // 设置新主题
+        this.setTheme(newTheme);
+        
+        // 保存用户偏好
+        this.saveTheme(newTheme);
+        
+        // 添加切换动画
+        this.addSwitchAnimation();
+        
+        return newTheme;
+    },
+    
+    /**
+     * 更新切换按钮图标
+     */
+    updateToggleIcon(theme) {
+        const lightIcon = document.getElementById('theme-icon-light');
+        const darkIcon = document.getElementById('theme-icon-dark');
+        
+        if (lightIcon && darkIcon) {
+            if (theme === this.THEMES.DARK) {
+                lightIcon.style.display = 'none';
+                darkIcon.style.display = 'block';
+            } else {
+                lightIcon.style.display = 'block';
+                darkIcon.style.display = 'none';
+            }
+        }
+    },
+    
+    /**
+     * 添加切换动画
+     */
+    addSwitchAnimation() {
+        const button = document.querySelector('.theme-toggle');
+        if (button) {
+            button.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                button.style.transform = 'scale(1)';
+            }, 150);
+        }
+    },
+    
+    /**
+     * 触发主题变化事件
+     */
+    dispatchThemeChangeEvent(theme) {
+        const event = new CustomEvent('themechange', {
+            detail: { theme }
+        });
+        document.dispatchEvent(event);
+    },
+    
+    /**
+     * 获取当前主题
+     */
+    getCurrentTheme() {
+        return document.documentElement.getAttribute('data-theme') || this.THEMES.LIGHT;
+    },
+    
+    /**
+     * 检查是否为深色模式
+     */
+    isDarkMode() {
+        return this.getCurrentTheme() === this.THEMES.DARK;
+    }
+};
+
+/**
+ * 切换主题的全局函数
+ */
+function toggleTheme() {
+    return ThemeManager.toggleTheme();
+}
+
+/**
+ * 页面加载完成后初始化主题系统
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    ThemeManager.init();
+});
+
+/**
+ * 监听主题变化事件，可以用于其他功能的主题适配
+ */
+document.addEventListener('themechange', function(e) {
+    console.log('主题已变更为:', e.detail.theme);
+    
+    // 可以在这里添加其他需要响应主题变化的逻辑
+    // 比如更新图表颜色、重新渲染某些组件等
+});
+
+// 全局暴露主题管理器
+window.ThemeManager = ThemeManager;
+window.toggleTheme = toggleTheme;

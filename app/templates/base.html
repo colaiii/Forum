@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}校园网匿名论坛{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20250128-4">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20250128-11">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 </head>
 <body>
@@ -25,6 +25,15 @@
                 <a href="{{ url_for('main.index') }}" class="nav-link">首页</a>
                 <button class="nav-link" onclick="showRulesModal()" style="background: none; border: none; color: inherit; cursor: pointer;">规则</button>
                 <button class="nav-link" onclick="showCookieManager()" style="background: none; border: none; color: inherit; cursor: pointer;">🍪 饼干管理</button>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换深色模式" title="切换深色/浅色模式">
+                    <svg id="theme-icon-light" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+                        <path d="m12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <svg id="theme-icon-dark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
             </nav>
         </div>
     </header>
@@ -53,14 +62,16 @@
                                 <div class="cookie-color" id="currentCookieColor"></div>
                                 <div class="cookie-status">当前使用中</div>
                             </div>
-                            <div class="cookie-actions">
-                                <button class="btn btn-secondary btn-small" onclick="saveCookie()" id="saveCookieBtn">收藏此饼干</button>
-                                <button class="btn btn-secondary btn-small" onclick="newCookie()" id="newCookieBtn">生成新饼干</button>
-                            </div>
-                            <div class="cookie-limits" id="cookieLimits">
-                                <div class="limit-info">
-                                    <span class="limit-label">24小时生成次数：</span>
-                                    <span class="limit-value" id="generationCount">0/3</span>
+                            <div class="cookie-actions-container">
+                                <div class="cookie-actions">
+                                    <button class="btn btn-secondary btn-small" onclick="saveCookie()" id="saveCookieBtn">收藏此饼干</button>
+                                    <button class="btn btn-secondary btn-small" onclick="newCookie()" id="newCookieBtn">生成新饼干</button>
+                                </div>
+                                <div class="cookie-limits" id="cookieLimits">
+                                    <div class="limit-info">
+                                        <span class="limit-label">24小时生成次数：</span>
+                                        <span class="limit-value" id="generationCount">0/3</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -307,7 +318,7 @@
         </div>
     </footer>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}?v=20250128-8"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=20250128-9"></script>
     
     <script>
     // 确保所有弹窗点击遮罩层时也能恢复按钮状态
