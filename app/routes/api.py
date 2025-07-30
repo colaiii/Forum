@@ -482,28 +482,42 @@ def get_cookie_stats():
 
 @api_bp.route('/threads/latest', methods=['GET'])
 def get_latest_threads():
-    """获取最新串数据（用于自动刷新）"""
+    """获取最新串数据（用于自动刷新和分类切换）"""
     try:
         # 获取参数
         last_thread_id = request.args.get('last_id', 0, type=int)
         page = request.args.get('page', 1, type=int)
+        category = request.args.get('category', 'timeline')
         per_page = 20
         
-        # 获取置顶串
-        pinned_threads = Thread.query.filter_by(is_pinned=True).order_by(Thread.last_reply_at.desc()).all()
+        # 验证分类
+        from app.utils.categories import is_valid_category
+        if not is_valid_category(category):
+            category = 'timeline'
         
-        # 获取普通串
-        normal_threads_query = Thread.query.filter_by(is_pinned=False).order_by(Thread.last_reply_at.desc())
+        # 根据分类筛选
+        if category == 'timeline':
+            # 时间线显示所有板块的串
+            pinned_threads = Thread.query.filter_by(is_pinned=True).order_by(Thread.last_reply_at.desc()).all()
+            normal_threads_query = Thread.query.filter_by(is_pinned=False).order_by(Thread.last_reply_at.desc())
+        else:
+            # 特定板块只显示该板块的串
+            pinned_threads = Thread.query.filter_by(is_pinned=True, category=category).order_by(Thread.last_reply_at.desc()).all()
+            normal_threads_query = Thread.query.filter_by(is_pinned=False, category=category).order_by(Thread.last_reply_at.desc())
         
         # 如果提供了last_thread_id，只获取比这个ID新的串
         if last_thread_id > 0:
             new_threads = normal_threads_query.filter(Thread.id > last_thread_id).all()
             has_new_content = len(new_threads) > 0
+            total_pages = 1
+            current_page = 1
         else:
             # 正常分页获取
             pagination = normal_threads_query.paginate(page=page, per_page=per_page, error_out=False)
             new_threads = pagination.items
             has_new_content = True
+            total_pages = pagination.pages
+            current_page = pagination.page
         
         # 构建响应数据
         def thread_to_dict(thread):
@@ -514,7 +528,8 @@ def get_latest_threads():
                 'cookie_id': thread.cookie_id,
                 'cookie_display': CookieManager.format_cookie_display(thread.cookie_id),
                 'cookie_color': CookieManager.get_cookie_color(thread.cookie_id),
-                'image_url': thread.image_url,
+                'image_urls': thread.get_image_urls(),
+                'category': thread.category,
                 'created_at': thread.created_at.strftime('%Y-%m-%d %H:%M:%S'),
                 'last_reply_at': thread.last_reply_at.strftime('%m-%d %H:%M'),
                 'reply_count': thread.reply_count,
@@ -526,7 +541,16 @@ def get_latest_threads():
             'has_new_content': has_new_content,
             'pinned_threads': [thread_to_dict(thread) for thread in pinned_threads],
             'normal_threads': [thread_to_dict(thread) for thread in new_threads],
-            'latest_thread_id': max([t.id for t in (pinned_threads + new_threads)]) if (pinned_threads + new_threads) else 0
+            'latest_thread_id': max([t.id for t in (pinned_threads + new_threads)]) if (pinned_threads + new_threads) else 0,
+            'pagination': {
+                'current_page': current_page,
+                'total_pages': total_pages,
+                'has_prev': current_page > 1,
+                'has_next': current_page < total_pages,
+                'prev_num': current_page - 1 if current_page > 1 else None,
+                'next_num': current_page + 1 if current_page < total_pages else None
+            },
+            'category': category
         }
         
         return jsonify(response_data)

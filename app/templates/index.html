@@ -22,7 +22,7 @@
             {% for category_key, category_data in categories %}
             <a href="{{ url_for('main.index', category=category_key) }}" 
                class="category-item category-{{ category_key }} {{ 'active' if current_category == category_key else '' }}"
-               onclick="handleCategorySwitch(event, this)">
+               data-category="{{ category_key }}">
                 <span class="category-icon">{{ category_data.icon }}</span>
                 <div class="category-info">
                     <span class="category-name">{{ category_data.name }}</span>
@@ -354,28 +354,335 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// 处理板块切换的平滑过渡
+// 处理板块切换的平滑过渡 - 现在由category-switch.js处理
 function handleCategorySwitch(event, element) {
-    // 停止自动刷新避免冲突
-    stopAutoRefresh();
-    
-    // 添加切换状态指示
-    const sidebar = document.querySelector('.sidebar');
-    sidebar.style.opacity = '0.7';
-    sidebar.style.pointerEvents = 'none';
-    
-    // 显示切换状态
-    showRefreshStatus('🔄 正在切换板块...');
-    
-    // 延迟跳转，给用户视觉缓冲
-    setTimeout(() => {
-        window.location.href = element.href;
-    }, 150);
-    
-    // 阻止默认链接行为
+    // 这个函数现在由CategorySwitcher类处理，保留作为备用
     event.preventDefault();
     return false;
 }
+
+// 显示/隐藏分类加载状态
+function showCategoryLoading(show) {
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    
+    if (show) {
+        // 添加加载效果
+        sidebar.style.opacity = '0.7';
+        sidebar.style.pointerEvents = 'none';
+        mainContent.style.opacity = '0.7';
+        showRefreshStatus('🔄 正在切换板块...');
+    } else {
+        // 移除加载效果
+        sidebar.style.opacity = '1';
+        sidebar.style.pointerEvents = 'auto';
+        mainContent.style.opacity = '1';
+    }
+}
+
+// 加载分类内容
+async function loadCategoryContent(category) {
+    try {
+        const response = await fetch(`/api/threads/latest?category=${category}&page=1`);
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || '获取数据失败');
+        }
+        
+        // 更新页面内容
+        updatePageContent(data, category);
+        
+        return data;
+    } catch (error) {
+        console.error('加载分类内容失败:', error);
+        throw error;
+    }
+}
+
+// 更新页面内容
+function updatePageContent(data, category) {
+    // 获取分类信息
+    const categoryInfo = getCategoryInfo(category);
+    
+    // 更新页面标题
+    updatePageTitle(categoryInfo);
+    
+    // 更新置顶串列表
+    updatePinnedThreads(data.pinned_threads, category);
+    
+    // 更新普通串列表
+    updateNormalThreads(data.normal_threads, category);
+    
+    // 更新分页
+    updatePagination(data.pagination, category);
+    
+    // 更新搜索表单
+    updateSearchForm(category);
+    
+    // 更新侧边栏激活状态
+    updateSidebarActiveState(category);
+}
+
+// 获取分类信息
+function getCategoryInfo(category) {
+    const categories = {
+        'timeline': { icon: '🏠', name: '首页', description: '最新的串和讨论' },
+        'academic': { icon: '📚', name: '学术版', description: '学习、研究和学术讨论' },
+        'life': { icon: '🌟', name: '生活版', description: '日常生活、分享和交流' },
+        'game': { icon: '🎮', name: '游戏版', description: '游戏相关的讨论和分享' },
+        'creative': { icon: '🎨', name: '创意版', description: '创意作品和艺术分享' }
+    };
+    return categories[category] || categories['timeline'];
+}
+
+// 更新页面标题
+function updatePageTitle(categoryInfo) {
+    const pageTitle = document.querySelector('.page-title h2');
+    const pageDescription = document.querySelector('.page-description');
+    
+    if (pageTitle) {
+        pageTitle.textContent = `${categoryInfo.icon} ${categoryInfo.name}`;
+    }
+    if (pageDescription) {
+        pageDescription.textContent = categoryInfo.description;
+    }
+}
+
+// 更新置顶串列表
+function updatePinnedThreads(pinnedThreads, currentCategory) {
+    const pinnedSection = document.getElementById('pinnedSection');
+    const pinnedList = document.getElementById('pinnedThreadsList');
+    
+    if (pinnedThreads.length === 0) {
+        if (pinnedSection) {
+            pinnedSection.style.display = 'none';
+        }
+        return;
+    }
+    
+    if (pinnedSection) {
+        pinnedSection.style.display = 'block';
+    }
+    
+    if (pinnedList) {
+        pinnedList.innerHTML = pinnedThreads.map(thread => 
+            generateThreadHTML(thread, currentCategory, true)
+        ).join('');
+    }
+}
+
+// 更新普通串列表
+function updateNormalThreads(normalThreads, currentCategory) {
+    const normalList = document.getElementById('normalThreadsList');
+    
+    if (normalList) {
+        normalList.innerHTML = normalThreads.map(thread => 
+            generateThreadHTML(thread, currentCategory, false)
+        ).join('');
+    }
+}
+
+// 生成串的HTML
+function generateThreadHTML(thread, currentCategory, isPinned) {
+    const categoryTag = currentCategory === 'timeline' ? 
+        `<span class="thread-category" style="background-color: rgba(0, 123, 255, 0.1); color: #007bff;">
+            📝 ${thread.category}
+        </span>` : '';
+    
+    const pinIcon = isPinned ? '<span class="thread-pin">📌</span>' : '';
+    
+    const imagesHtml = thread.image_urls && thread.image_urls.length > 0 ? `
+        <div class="thread-images">
+            ${thread.image_urls.slice(0, 3).map(url => `
+                <div class="thread-image">
+                    <img src="${url}" alt="图片" onclick="event.stopPropagation(); showImageModal('${url}');">
+                </div>
+            `).join('')}
+            ${thread.image_urls.length > 3 ? `
+                <div class="more-images">+${thread.image_urls.length - 3}张图片</div>
+            ` : ''}
+        </div>
+    ` : '';
+    
+    return `
+        <div class="thread-item ${isPinned ? 'pinned' : ''}" onclick="goToThread(${thread.id})" style="cursor: pointer;">
+            <div class="thread-header">
+                <span class="thread-id">No.${thread.id}</span>
+                ${pinIcon}
+                ${categoryTag}
+                <span class="thread-cookie" style="color: ${thread.cookie_color}">
+                    ${thread.cookie_display}
+                </span>
+                <span class="thread-time">${thread.created_at}</span>
+            </div>
+            <h4 class="thread-title">
+                <a href="/thread/${thread.id}" onclick="event.stopPropagation();">${thread.title}</a>
+            </h4>
+            <div class="thread-content">
+                ${imagesHtml}
+                <div class="markdown-preview">${thread.content}</div>
+            </div>
+            <div class="thread-stats">
+                <span class="reply-count">💬 ${thread.reply_count}</span>
+                <span class="last-reply">最后回复: ${thread.last_reply_at}</span>
+            </div>
+        </div>
+    `;
+}
+
+// 更新分页
+function updatePagination(pagination, category) {
+    const paginationContainer = document.querySelector('.pagination');
+    
+    if (!paginationContainer || pagination.total_pages <= 1) {
+        if (paginationContainer) {
+            paginationContainer.style.display = 'none';
+        }
+        return;
+    }
+    
+    paginationContainer.style.display = 'flex';
+    
+    let paginationHTML = '';
+    
+    // 上一页
+    if (pagination.has_prev) {
+        const prevUrl = category === 'timeline' ? 
+            `/?page=${pagination.prev_num}` : 
+            `/category/${category}?page=${pagination.prev_num}`;
+        paginationHTML += `<a href="${prevUrl}" class="page-btn" onclick="return handlePageClick(event, ${pagination.prev_num}, '${category}')">« 上一页</a>`;
+    }
+    
+    // 页码
+    for (let i = 1; i <= pagination.total_pages; i++) {
+        if (i === pagination.current_page) {
+            paginationHTML += `<span class="page-btn current">${i}</span>`;
+        } else {
+            const pageUrl = category === 'timeline' ? 
+                `/?page=${i}` : 
+                `/category/${category}?page=${i}`;
+            paginationHTML += `<a href="${pageUrl}" class="page-btn" onclick="return handlePageClick(event, ${i}, '${category}')">${i}</a>`;
+        }
+    }
+    
+    // 下一页
+    if (pagination.has_next) {
+        const nextUrl = category === 'timeline' ? 
+            `/?page=${pagination.next_num}` : 
+            `/category/${category}?page=${pagination.next_num}`;
+        paginationHTML += `<a href="${nextUrl}" class="page-btn" onclick="return handlePageClick(event, ${pagination.next_num}, '${category}')">下一页 »</a>`;
+    }
+    
+    paginationContainer.innerHTML = paginationHTML;
+}
+
+// 处理分页点击
+function handlePageClick(event, page, category) {
+    event.preventDefault();
+    
+    showCategoryLoading(true);
+    
+    loadCategoryPage(category, page)
+        .then(() => {
+            // 更新URL
+            const newUrl = category === 'timeline' ? 
+                `/?page=${page}` : 
+                `/category/${category}?page=${page}`;
+            history.pushState({category: category, page: page}, '', newUrl);
+            
+            showCategoryLoading(false);
+            
+            // 滚动到顶部
+            window.scrollTo(0, 0);
+        })
+        .catch(error => {
+            console.error('加载页面失败:', error);
+            showRefreshStatus('❌ 加载页面失败');
+            showCategoryLoading(false);
+        });
+    
+    return false;
+}
+
+// 加载分类的指定页面
+async function loadCategoryPage(category, page) {
+    try {
+        const response = await fetch(`/api/threads/latest?category=${category}&page=${page}`);
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || '获取数据失败');
+        }
+        
+        // 只更新内容区域，不更新标题和侧边栏
+        updatePinnedThreads(data.pinned_threads, category);
+        updateNormalThreads(data.normal_threads, category);
+        updatePagination(data.pagination, category);
+        
+        return data;
+    } catch (error) {
+        console.error('加载分类页面失败:', error);
+        throw error;
+    }
+}
+
+// 更新搜索表单
+function updateSearchForm(category) {
+    const categoryInput = document.querySelector('input[name="category"]');
+    const searchInput = document.querySelector('.search-input');
+    
+    if (categoryInput) {
+        categoryInput.value = category;
+    }
+    
+    if (searchInput) {
+        const categoryInfo = getCategoryInfo(category);
+        searchInput.placeholder = `在${categoryInfo.name}中搜索...`;
+    }
+}
+
+// 更新侧边栏激活状态
+function updateSidebarActiveState(category) {
+    // 移除所有激活状态
+    document.querySelectorAll('.category-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // 添加新的激活状态
+    const activeItem = document.querySelector(`.category-item.category-${category}`);
+    if (activeItem) {
+        activeItem.classList.add('active');
+    }
+}
+
+// 更新当前分类（全局变量）
+function updateCurrentCategory(category) {
+    // 这里可以添加全局状态更新逻辑
+    window.currentCategory = category;
+}
+
+// 处理浏览器前进后退
+window.addEventListener('popstate', function(event) {
+    if (event.state && event.state.category) {
+        const category = event.state.category;
+        const page = event.state.page || 1;
+        
+        showCategoryLoading(true);
+        
+        if (page === 1) {
+            loadCategoryContent(category).then(() => {
+                updateCurrentCategory(category);
+                showCategoryLoading(false);
+            });
+        } else {
+            loadCategoryPage(category, page).then(() => {
+                updateCurrentCategory(category);
+                showCategoryLoading(false);
+            });
+        }
+    }
+});
 
 // 移动端侧边栏控制函数
 function toggleMobileSidebar() {
