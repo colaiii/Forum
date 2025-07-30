@@ -118,13 +118,7 @@
 
 <!-- 频率限制提示 -->
 <div id="rateLimitMessage" class="message warning" style="display: none;">
-    <div id="rateLimitContent">
-        <span id="rateLimitText">发串频率限制</span>
-        <div class="rate-limit-info">
-            <div>当前尝试次数: <span id="currentAttempts">0</span>/<span id="maxAttempts">3</span></div>
-            <div>等待时间: <span id="waitTime">0</span> 秒</div>
-        </div>
-    </div>
+    <span id="rateLimitText">发串频率限制</span>
     <button onclick="hideMessage('rateLimitMessage')" class="btn btn-secondary btn-sm">关闭</button>
 </div>
 
@@ -342,12 +336,7 @@ function hideAllMessages() {
 
 // 显示频率限制消息
 function showRateLimitMessage(rateLimitData) {
-    const message = document.getElementById('rateLimitMessage');
     document.getElementById('rateLimitText').textContent = rateLimitData.error || '发串过于频繁';
-    document.getElementById('currentAttempts').textContent = rateLimitData.rate_limit.current_attempts;
-    document.getElementById('maxAttempts').textContent = rateLimitData.rate_limit.max_attempts;
-    document.getElementById('waitTime').textContent = rateLimitData.rate_limit.wait_time;
-    
     showMessage('rateLimitMessage');
 }
 
