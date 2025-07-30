@@ -1,3 +1,10 @@
+/* 防闪烁：根据系统偏好设置初始背景 */
+@media (prefers-color-scheme: dark) {
+    html:not([data-theme]) {
+        background-color: #1a1a1a !important;
+    }
+}
+
 /* CSS变量定义 - 支持深色模式 */
 :root {
     /* 浅色模式颜色变量 */
@@ -60,6 +67,19 @@
     box-sizing: border-box;
 }
 
+/* 防止深色模式闪烁 - 在CSS变量加载前提供基础样式 */
+html {
+    background-color: #f5f5f5; /* 默认浅色背景 */
+}
+
+html.theme-loaded {
+    transition: background-color 0.3s ease;
+}
+
+html[data-theme="dark"] {
+    background-color: #1a1a1a; /* 深色背景 */
+}
+
 body {
     font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
     font-size: 14px;
@@ -67,6 +87,11 @@ body {
     color: var(--text-primary);
     background-color: var(--bg-primary);
     padding-top: 90px; /* 为固定header留出空间 */
+    /* 确保body继承html的背景色，避免闪烁 */
+    min-height: 100vh;
+}
+
+html.theme-loaded body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -415,7 +440,8 @@ body {
 
 .reply-form h3 {
     margin-bottom: 1rem;
-    color: #2c3e50;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 /* 表单样式 */
@@ -464,8 +490,9 @@ body {
 
 .file-info {
     font-size: 12px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
     margin-top: 0.3rem;
+    transition: color 0.3s ease;
 }
 
 .image-preview {
@@ -483,8 +510,10 @@ body {
     align-items: center;
     gap: 1rem;
     padding: 0.5rem;
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
     border-radius: 4px;
+    border: 1px solid var(--border-primary);
+    transition: all 0.3s ease;
 }
 
 .image-preview-item {
@@ -492,10 +521,11 @@ body {
     align-items: center;
     margin: 10px 0;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-primary);
     border-radius: 8px;
-    background: #f9f9f9;
+    background: var(--bg-tertiary);
     position: relative;
+    transition: all 0.3s ease;
 }
 
 .image-preview-item img {
@@ -509,8 +539,9 @@ body {
     display: flex;
     flex-direction: column;
     font-size: 12px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
     flex: 1;
+    transition: color 0.3s ease;
 }
 
 /* 图片限制弹窗样式 */
@@ -585,23 +616,27 @@ body {
 }
 
 .modal-content.image-limit-modal .limit-message p {
-    color: #666;
+    color: var(--text-secondary);
     margin-bottom: 1.5rem;
     font-size: 1rem;
+    transition: color 0.3s ease;
 }
 
 .modal-content.image-limit-modal .suggestions {
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
     padding: 1.5rem;
     border-radius: 8px;
     margin-bottom: 2rem;
     text-align: left;
+    border: 1px solid var(--border-primary);
+    transition: all 0.3s ease;
 }
 
 .modal-content.image-limit-modal .suggestions h4 {
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 1rem;
     font-size: 1.1rem;
+    transition: color 0.3s ease;
 }
 
 .modal-content.image-limit-modal .suggestions ul {
@@ -625,7 +660,8 @@ body {
 .modal-content.image-limit-modal .modal-actions {
     text-align: center;
     padding-top: 1rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border-primary);
+    transition: border-color 0.3s ease;
 }
 
 .modal-content.image-limit-modal .modal-actions .btn {
@@ -741,23 +777,28 @@ body {
 
 /* 引用块 */
 .quote-block {
-    background-color: #f8f9fa;
-    border-left: 3px solid #3498db;
+    background-color: var(--bg-tertiary);
+    border-left: 3px solid var(--color-primary);
     padding: 0.5rem 1rem;
     margin: 0.5rem 0;
     border-radius: 0 4px 4px 0;
+    border: 1px solid var(--border-primary);
+    border-left: 3px solid var(--color-primary);
+    transition: all 0.3s ease;
 }
 
 .quote-header {
     font-size: 12px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
     margin-bottom: 0.3rem;
+    transition: color 0.3s ease;
 }
 
 .quote-content {
     font-size: 13px;
-    color: #555;
+    color: var(--text-primary);
     font-style: italic;
+    transition: color 0.3s ease;
 }
 
 /* 分页 */
@@ -770,22 +811,23 @@ body {
 
 .page-link {
     padding: 0.5rem 1rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-primary);
     border-radius: 4px;
     text-decoration: none;
-    color: #3498db;
-    background: white;
+    color: var(--color-primary);
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
 }
 
 .page-link:hover {
-    background-color: #3498db;
-    color: white;
+    background-color: var(--color-primary);
+    color: var(--text-inverse);
 }
 
 .page-link.current {
-    background-color: #3498db;
-    color: white;
-    border-color: #3498db;
+    background-color: var(--color-primary);
+    color: var(--text-inverse);
+    border-color: var(--color-primary);
 }
 
 /* 图片弹窗 */
@@ -893,10 +935,11 @@ body {
 }
 
 .rules-section h3 {
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #3498db;
+    border-bottom: 2px solid var(--color-primary);
+    transition: color 0.3s ease, border-color 0.3s ease;
 }
 
 .rules-section ul {
@@ -908,31 +951,84 @@ body {
     margin-bottom: 0.5rem;
     padding-left: 1.5rem;
     position: relative;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .rules-section li:before {
     content: "•";
-    color: #3498db;
+    color: var(--color-primary);
     position: absolute;
     left: 0;
     font-weight: bold;
+    transition: color 0.3s ease;
 }
 
 .rules-footer {
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
     padding: 1.5rem;
     border-radius: 8px;
     text-align: center;
     margin-top: 2rem;
+    transition: background-color 0.3s ease;
 }
 
 .rules-footer p {
     margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .rules-footer em {
-    color: #7f8c8d;
+    color: var(--text-secondary);
     font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+/* Markdown语法指南样式 */
+.markdown-guide-container {
+    background: var(--bg-tertiary);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    border: 1px solid var(--border-primary);
+    transition: all 0.3s ease;
+}
+
+.markdown-guide-spacing {
+    margin-top: 10px;
+}
+
+.markdown-guide-container p {
+    color: var(--text-primary);
+    margin-bottom: 5px;
+    transition: color 0.3s ease;
+}
+
+.markdown-guide-container code {
+    background-color: var(--bg-code);
+    color: var(--text-primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    border: 1px solid var(--border-primary);
+    display: block;
+    margin: 5px 0;
+    line-height: 1.4;
+    transition: all 0.3s ease;
+}
+
+.markdown-guide-container strong {
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+}
+
+.rules-footer-note {
+    margin-top: 15px;
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    transition: color 0.3s ease;
 }
 
 /* 内容头部样式 */
@@ -1077,7 +1173,7 @@ body {
     
     .nav-link {
         padding: 0.3rem 0.5rem; /* 减少按钮内边距 */
-        font-size: 0.7rem; /* 稍微减小字体 */
+        font-size: 0.85rem; /* 增大字体以便阅读 */
         min-width: fit-content;
         text-align: center;
         white-space: nowrap;
@@ -1148,6 +1244,8 @@ body {
 
 .markdown-content p {
     margin: 0.5em 0;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .markdown-content blockquote {
@@ -1195,6 +1293,8 @@ body {
 
 .markdown-content li {
     margin: 0.25em 0;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .markdown-content table {
@@ -1208,13 +1308,15 @@ body {
     border: 1px solid var(--border-primary);
     padding: 8px 12px;
     text-align: left;
-    transition: border-color 0.3s ease;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
 }
 
 .markdown-content th {
     background-color: var(--bg-secondary);
+    color: var(--text-primary);
     font-weight: 600;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .markdown-content a {
@@ -1248,23 +1350,45 @@ body {
 
 /* 代码高亮样式 */
 .highlight {
-    background-color: #282c34;
-    color: #abb2bf;
+    background-color: var(--bg-code);
+    color: var(--text-primary);
     border-radius: 5px;
     overflow-x: auto;
+    border: 1px solid var(--border-primary);
+    transition: all 0.3s ease;
 }
 
-.highlight .err { color: #e06c75; }
-.highlight .k { color: #c678dd; }
-.highlight .s { color: #98c379; }
-.highlight .n { color: #e06c75; }
-.highlight .o { color: #56b6c2; }
-.highlight .p { color: #abb2bf; }
-.highlight .c { color: #5c6370; }
-.highlight .cm { color: #5c6370; }
-.highlight .cp { color: #5c6370; }
-.highlight .c1 { color: #5c6370; }
-.highlight .cs { color: #5c6370; }
+/* 深色模式下的代码高亮 */
+[data-theme="dark"] .highlight {
+    background-color: #282c34;
+    color: #abb2bf;
+}
+
+/* 浅色模式下的代码高亮颜色 */
+.highlight .err { color: var(--color-danger); }
+.highlight .k { color: var(--color-primary); }
+.highlight .s { color: var(--color-success); }
+.highlight .n { color: var(--color-danger); }
+.highlight .o { color: var(--color-info); }
+.highlight .p { color: var(--text-primary); }
+.highlight .c { color: var(--text-secondary); }
+.highlight .cm { color: var(--text-secondary); }
+.highlight .cp { color: var(--text-secondary); }
+.highlight .c1 { color: var(--text-secondary); }
+.highlight .cs { color: var(--text-secondary); }
+
+/* 深色模式下的代码高亮颜色 */
+[data-theme="dark"] .highlight .err { color: #e06c75; }
+[data-theme="dark"] .highlight .k { color: #c678dd; }
+[data-theme="dark"] .highlight .s { color: #98c379; }
+[data-theme="dark"] .highlight .n { color: #e06c75; }
+[data-theme="dark"] .highlight .o { color: #56b6c2; }
+[data-theme="dark"] .highlight .p { color: #abb2bf; }
+[data-theme="dark"] .highlight .c { color: #5c6370; }
+[data-theme="dark"] .highlight .cm { color: #5c6370; }
+[data-theme="dark"] .highlight .cp { color: #5c6370; }
+[data-theme="dark"] .highlight .c1 { color: #5c6370; }
+[data-theme="dark"] .highlight .cs { color: #5c6370; }
 
 /* 预览样式优化 */
 .markdown-preview {
@@ -1288,6 +1412,8 @@ body {
 
 .markdown-preview p {
     margin: 0.25em 0;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .markdown-preview pre,
@@ -1394,6 +1520,14 @@ body {
 .cookie-name {
     font-weight: 600;
     color: var(--text-primary);
+    transition: color 0.3s ease;
+}
+
+.cookie-color {
+    display: inline-block;
+    margin-left: 0.5rem;
+    font-size: 0.9em;
+    color: var(--text-secondary);
     transition: color 0.3s ease;
 }
 
@@ -1628,9 +1762,11 @@ body {
     
     .cookie-help {
         padding: 1rem;
-        background: #e3f2fd;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-primary);
         border-radius: 12px;
         margin-top: 1rem;
+        transition: all 0.3s ease;
     }
     
     .current-cookie-section,
@@ -1644,12 +1780,19 @@ body {
         padding: 0.8rem;
         font-size: 16px; /* 防止iOS缩放 */
         border-radius: 8px;
-        border: 2px solid #e9ecef;
+        border: 2px solid var(--border-primary);
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
     }
     
     .cookie-manager-modal .form-group input:focus {
-        border-color: #3498db;
+        border-color: var(--color-primary);
         box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+    
+    [data-theme="dark"] .cookie-manager-modal .form-group input:focus {
+        box-shadow: 0 0 0 3px rgba(93, 173, 226, 0.3);
     }
     
     /* 确保导入按钮在移动端正常显示 */
@@ -1686,22 +1829,27 @@ body {
     .rules-modal .modal-body .rules-section {
         margin-bottom: 1.5rem;
         padding: 1rem;
-        background: #f8f9fa;
+        background: var(--bg-tertiary);
         border-radius: 12px;
-        border-left: 4px solid #3498db;
+        border-left: 4px solid var(--color-primary);
+        transition: all 0.3s ease;
     }
     
     .rules-modal .modal-body .rules-section h3 {
         margin-top: 0;
         font-size: 1.1rem;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid var(--border-primary);
         padding-bottom: 0.5rem;
+        color: var(--text-primary);
+        transition: all 0.3s ease;
     }
     
     .rules-modal .modal-body .rules-footer {
-        background: #e3f2fd;
+        background: var(--bg-tertiary);
         margin-top: 1.5rem;
         border-radius: 12px;
+        border: 1px solid var(--border-primary);
+        transition: all 0.3s ease;
     }
 } 
 
@@ -1838,9 +1986,11 @@ body {
 .no-results {
     text-align: center;
     padding: 40px 20px;
-    background: #f8f9fa;
+    background: var(--bg-tertiary);
     border-radius: 8px;
     margin: 20px 0;
+    border: 1px solid var(--border-primary);
+    transition: all 0.3s ease;
 }
 
 .no-results-icon {
@@ -1850,20 +2000,23 @@ body {
 }
 
 .no-results h3 {
-    color: #6c757d;
+    color: var(--text-secondary);
     margin-bottom: 15px;
+    transition: color 0.3s ease;
 }
 
 .no-results p {
-    color: #6c757d;
+    color: var(--text-secondary);
     margin-bottom: 20px;
+    transition: color 0.3s ease;
 }
 
 .no-results ul {
     text-align: left;
     display: inline-block;
-    color: #6c757d;
+    color: var(--text-secondary);
     margin-bottom: 30px;
+    transition: color 0.3s ease;
 }
 
 .no-results ul li {
@@ -1907,12 +2060,13 @@ body {
 
 /* 导入限制显示样式 */
 .import-limits {
-    background: #e8f4fd;
-    border: 1px solid #b8daff;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
     border-radius: 6px;
     padding: 10px;
     margin: 10px 0;
     font-size: 14px;
+    transition: all 0.3s ease;
 }
 
 .import-limits .limit-info {
@@ -1922,17 +2076,18 @@ body {
 }
 
 .import-limits .limit-label {
-    color: #004085;
+    color: var(--text-primary);
     font-weight: 500;
+    transition: color 0.3s ease;
 }
 
 .import-limits.rate-limited {
-    background: #f8d7da;
-    border-color: #f5c6cb;
+    background: rgba(231, 76, 60, 0.1);
+    border-color: var(--color-danger);
 }
 
 .import-limits.rate-limited .limit-label {
-    color: #721c24;
+    color: var(--color-danger);
 }
 
 /* 导入按钮禁用状态 */
@@ -2731,7 +2886,7 @@ body {
     
     .nav-link {
         padding: 0.25rem 0.4rem; /* 进一步减小按钮 */
-        font-size: 0.65rem; /* 减小字体 */
+        font-size: 0.8rem; /* 增大字体以便阅读 */
     }
     
     .category-item {

@@ -4,7 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}校园网匿名论坛{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20250128-12">
+    
+    <!-- 防止深色模式闪烁的内联脚本 -->
+    <script>
+        (function() {
+            try {
+                // 立即获取保存的主题偏好
+                const savedTheme = localStorage.getItem('forum_theme_preference');
+                
+                // 如果没有保存的偏好，检查系统偏好
+                let theme = savedTheme;
+                if (!theme) {
+                    theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                
+                // 立即设置主题属性到html元素
+                if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
+                
+                // 添加加载完成类，启用过渡动画
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.documentElement.classList.add('theme-loaded');
+                });
+            } catch (e) {
+                // 如果出错，默认使用浅色主题
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.documentElement.classList.add('theme-loaded');
+                });
+            }
+        })();
+    </script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20250128-14">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 </head>
 <body>
@@ -290,14 +325,14 @@
 
                 <div class="rules-section">
                     <h3>📱 Markdown语法指南</h3>
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    <div class="markdown-guide-container">
                         <p><strong>文本格式：</strong></p>
                         <code>**粗体** *斜体* `代码` ~~删除线~~</code>
-                        <p style="margin-top: 10px;"><strong>列表和引用：</strong></p>
+                        <p class="markdown-guide-spacing"><strong>列表和引用：</strong></p>
                         <code>- 列表项<br/>> 引用文本</code>
-                        <p style="margin-top: 10px;"><strong>链接和图片：</strong></p>
+                        <p class="markdown-guide-spacing"><strong>链接和图片：</strong></p>
                         <code>[链接文字](网址)<br/>![图片描述](图片链接)</code>
-                        <p style="margin-top: 10px;"><strong>代码块：</strong></p>
+                        <p class="markdown-guide-spacing"><strong>代码块：</strong></p>
                         <code>```语言<br/>代码内容<br/>```</code>
                     </div>
                 </div>
@@ -305,7 +340,7 @@
                 <div class="rules-footer">
                     <p><strong>🎯 论坛愿景</strong></p>
                     <p>校园网匿名论坛致力于为师生提供一个安全、自由、高质量的交流平台。我们相信匿名机制能够鼓励真实表达，促进开放讨论，同时也需要每位用户的自律和责任心来维护社区秩序。</p>
-                    <p style="margin-top: 15px; color: #666; font-size: 0.9em;">规则最后更新：2025年8月 |  解释权归论坛管理团队所有</p>
+                    <p class="rules-footer-note">规则最后更新：2025年8月 |  解释权归论坛管理团队所有</p>
                 </div>
             </div>
         </div>
@@ -318,7 +353,7 @@
         </div>
     </footer>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}?v=20250128-9"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=20250128-10"></script>
     <script src="{{ url_for('static', filename='js/category-switch.js') }}?v=20250128-1"></script>
     
     <script>

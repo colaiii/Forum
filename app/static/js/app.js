@@ -1393,19 +1393,16 @@ const ThemeManager = {
      * 初始化主题系统
      */
     init() {
-        // 从本地存储获取用户偏好
-        const savedTheme = this.getSavedTheme();
+        // 获取当前已设置的主题（由内联脚本设置）
+        const currentTheme = this.getCurrentTheme();
         
-        // 如果没有保存的偏好，检查系统偏好
-        const preferredTheme = savedTheme || this.getSystemPreference();
-        
-        // 应用主题
-        this.setTheme(preferredTheme);
+        // 更新UI元素（主要是切换按钮图标）
+        this.updateToggleIcon(currentTheme);
         
         // 监听系统主题变化
         this.watchSystemPreference();
         
-        console.log('深色模式系统初始化完成，当前主题:', preferredTheme);
+        console.log('深色模式系统初始化完成，当前主题:', currentTheme);
     },
     
     /**
