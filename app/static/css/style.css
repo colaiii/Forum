@@ -1112,9 +1112,8 @@ html.theme-loaded body {
     padding: 1rem 0;
     text-align: center;
     font-size: 12px;
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-primary);
     transition: all 0.3s ease;
-    border-top: 1px solid var(--border-primary);
 }
 
 .footer-tip {
