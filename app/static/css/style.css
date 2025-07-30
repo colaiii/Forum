@@ -2266,8 +2266,9 @@ html.theme-loaded body {
     letter-spacing: -0.02em;
     position: relative;
     z-index: 1;
-    white-space: nowrap;
     text-align: center;
+    word-wrap: break-word;
+    max-width: 100%;
 }
 
 /* 弹窗主体 */
@@ -2410,7 +2411,10 @@ html.theme-loaded body {
     
     .confirm-modal-header h3 {
         font-size: 16px;
-        white-space: nowrap;
+        line-height: 1.4;
+        word-wrap: break-word;
+        text-align: center;
+        max-width: 100%;
     }
     
     .confirm-modal-body {
