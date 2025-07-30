@@ -183,23 +183,23 @@
 {% if threads.pages > 1 %}
 <div class="pagination">
     {% if threads.has_prev %}
-                    <a href="{{ url_for('main.index', category=current_category, page=threads.prev_num) }}" class="page-btn">« 上一页</a>
+                    <a href="{{ url_for('main.index', category=current_category, page=threads.prev_num) }}" class="page-link">« 上一页</a>
     {% endif %}
     
     {% for page_num in threads.iter_pages() %}
         {% if page_num %}
             {% if page_num != threads.page %}
-                            <a href="{{ url_for('main.index', category=current_category, page=page_num) }}" class="page-btn">{{ page_num }}</a>
+                            <a href="{{ url_for('main.index', category=current_category, page=page_num) }}" class="page-link">{{ page_num }}</a>
             {% else %}
-                            <span class="page-btn current">{{ page_num }}</span>
+                            <span class="page-link current">{{ page_num }}</span>
             {% endif %}
         {% else %}
-                        <span class="page-btn">…</span>
+                        <span class="page-link">…</span>
         {% endif %}
     {% endfor %}
     
     {% if threads.has_next %}
-                    <a href="{{ url_for('main.index', category=current_category, page=threads.next_num) }}" class="page-btn">下一页 »</a>
+                    <a href="{{ url_for('main.index', category=current_category, page=threads.next_num) }}" class="page-link">下一页 »</a>
     {% endif %}
 </div>
 {% endif %}
@@ -551,18 +551,18 @@ function updatePagination(pagination, category) {
         const prevUrl = category === 'timeline' ? 
             `/?page=${pagination.prev_num}` : 
             `/category/${category}?page=${pagination.prev_num}`;
-        paginationHTML += `<a href="${prevUrl}" class="page-btn" onclick="return handlePageClick(event, ${pagination.prev_num}, '${category}')">« 上一页</a>`;
+        paginationHTML += `<a href="${prevUrl}" class="page-link" onclick="return handlePageClick(event, ${pagination.prev_num}, '${category}')">« 上一页</a>`;
     }
     
     // 页码
     for (let i = 1; i <= pagination.total_pages; i++) {
         if (i === pagination.current_page) {
-            paginationHTML += `<span class="page-btn current">${i}</span>`;
+            paginationHTML += `<span class="page-link current">${i}</span>`;
         } else {
             const pageUrl = category === 'timeline' ? 
                 `/?page=${i}` : 
                 `/category/${category}?page=${i}`;
-            paginationHTML += `<a href="${pageUrl}" class="page-btn" onclick="return handlePageClick(event, ${i}, '${category}')">${i}</a>`;
+            paginationHTML += `<a href="${pageUrl}" class="page-link" onclick="return handlePageClick(event, ${i}, '${category}')">${i}</a>`;
         }
     }
     
@@ -571,7 +571,7 @@ function updatePagination(pagination, category) {
         const nextUrl = category === 'timeline' ? 
             `/?page=${pagination.next_num}` : 
             `/category/${category}?page=${pagination.next_num}`;
-        paginationHTML += `<a href="${nextUrl}" class="page-btn" onclick="return handlePageClick(event, ${pagination.next_num}, '${category}')">下一页 »</a>`;
+        paginationHTML += `<a href="${nextUrl}" class="page-link" onclick="return handlePageClick(event, ${pagination.next_num}, '${category}')">下一页 »</a>`;
     }
     
     paginationContainer.innerHTML = paginationHTML;
