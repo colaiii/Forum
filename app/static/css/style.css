@@ -106,7 +106,7 @@ html.theme-loaded body {
 .header {
     background-color: var(--color-header);
     color: var(--text-inverse);
-    padding: 1rem 0;
+    padding: 0.8rem 0; /* 稍微减少padding，让整体更紧凑 */
     box-shadow: 0 2px 4px var(--shadow-primary);
     position: fixed;
     top: 0;
@@ -118,8 +118,13 @@ html.theme-loaded body {
 
 .header .container {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end; /* 导航菜单靠右对齐 */
     align-items: center;
+    flex-direction: row;
+    gap: 0.8rem;
+    padding: 0.5rem 15px; /* 进一步减少内边距 */
+    min-height: 45px; /* 减少最小高度 */
+    position: relative; /* 为绝对定位的按钮提供参考 */
 }
 
 .logo a {
@@ -1066,6 +1071,7 @@ html.theme-loaded body {
     border-right: 1px solid var(--border-primary) !important;
     box-shadow: 2px 0 10px var(--shadow-primary) !important;
     transition: all 0.3s ease !important;
+    top: 65px !important; /* 与body padding-top对齐 */
 }
 
 .sidebar-header {
@@ -1125,22 +1131,11 @@ html.theme-loaded body {
 /* 响应式设计 */
 @media (max-width: 768px) {
     body {
-        padding-top: 70px; /* 减少header高度对应的padding */
+        padding-top: 65px; /* 减少header高度对应的padding */
     }
     
     .container {
         padding: 0 10px;
-    }
-    
-    .header .container {
-        display: flex;
-        justify-content: flex-end; /* 导航菜单靠右对齐 */
-        align-items: center;
-        flex-direction: row;
-        gap: 0.8rem;
-        padding: 0.6rem 15px; /* 减少内边距 */
-        min-height: 50px; /* 减少最小高度 */
-        position: relative; /* 为绝对定位的按钮提供参考 */
     }
     
     /* 在移动端隐藏logo标题 */
@@ -2853,7 +2848,7 @@ html.theme-loaded body {
 /* 小屏幕优化 */
 @media (max-width: 480px) {
     body {
-        padding-top: 60px; /* 进一步减少超小屏幕的header padding */
+        padding-top: 55px; /* 进一步减少超小屏幕的header padding */
     }
     
     .mobile-menu-btn {
@@ -2885,13 +2880,13 @@ html.theme-loaded body {
         width: 260px !important;
         min-width: 260px !important;
         max-width: 260px !important;
-        top: 60px; /* 与body padding-top对齐 */
+        top: 55px; /* 与body padding-top对齐 */
     }
     
     .header .container {
-        padding: 0.4rem 8px; /* 进一步减少padding */
+        padding: 0.3rem 8px; /* 进一步减少padding */
         justify-content: flex-end !important;
-        min-height: 40px; /* 减少最小高度 */
+        min-height: 35px; /* 减少最小高度 */
     }
     
     .nav {
