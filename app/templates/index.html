@@ -92,7 +92,7 @@
     <h3 class="section-title">📌 置顶串</h3>
     <div id="pinnedThreadsList">
     {% for thread in pinned_threads %}
-    <div class="thread-item pinned">
+    <div class="thread-item pinned" onclick="goToThread({{ thread.id }})" style="cursor: pointer;">
         <div class="thread-header">
             <span class="thread-id">No.{{ thread.id }}</span>
             <span class="thread-pin">📌</span>
@@ -107,14 +107,14 @@
             <span class="thread-time">{{ thread.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
         </div>
         <h4 class="thread-title">
-            <a href="{{ url_for('main.view_thread', thread_id=thread.id) }}">{{ thread.title }}</a>
+            <a href="{{ url_for('main.view_thread', thread_id=thread.id) }}" onclick="event.stopPropagation();">{{ thread.title }}</a>
         </h4>
         <div class="thread-content">
             {% if thread.get_image_urls() %}
             <div class="thread-images">
                 {% for image_url in thread.get_image_urls()[:3] %}
                 <div class="thread-image">
-                    <img src="{{ image_url }}" alt="图片" onclick="showImageModal(this.src)">
+                    <img src="{{ image_url }}" alt="图片" onclick="event.stopPropagation(); showImageModal(this.src);">
                 </div>
                 {% endfor %}
                 {% if thread.get_image_urls()|length > 3 %}
@@ -140,7 +140,7 @@
     
     <div id="normalThreadsList">
     {% for thread in threads.items %}
-    <div class="thread-item">
+    <div class="thread-item" onclick="goToThread({{ thread.id }})" style="cursor: pointer;">
         <div class="thread-header">
             <span class="thread-id">No.{{ thread.id }}</span>
                     {% if current_category == 'timeline' %}
@@ -154,14 +154,14 @@
             <span class="thread-time">{{ thread.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
         </div>
         <h4 class="thread-title">
-            <a href="{{ url_for('main.view_thread', thread_id=thread.id) }}">{{ thread.title }}</a>
+            <a href="{{ url_for('main.view_thread', thread_id=thread.id) }}" onclick="event.stopPropagation();">{{ thread.title }}</a>
         </h4>
         <div class="thread-content">
             {% if thread.get_image_urls() %}
             <div class="thread-images">
                 {% for image_url in thread.get_image_urls()[:3] %}
                 <div class="thread-image">
-                    <img src="{{ image_url }}" alt="图片" onclick="showImageModal(this.src)">
+                    <img src="{{ image_url }}" alt="图片" onclick="event.stopPropagation(); showImageModal(this.src);">
                 </div>
                 {% endfor %}
                 {% if thread.get_image_urls()|length > 3 %}
@@ -224,6 +224,11 @@ function showImageModal(src) {
 
 function closeImageModal() {
     document.getElementById('imageModal').style.display = 'none';
+}
+
+// 跳转到串详情页的函数
+function goToThread(threadId) {
+    window.location.href = "{{ url_for('main.view_thread', thread_id=0) }}".replace('0', threadId);
 }
 
 // 自动刷新功能
