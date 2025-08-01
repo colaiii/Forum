@@ -350,14 +350,13 @@ docker compose ps
 
 - 🌟 **项目地址**: [GitHub Repository](https://github.com/colaiii/Forum)
 - 🐛 **问题反馈**: [Issues页面](https://github.com/colaiii/Forum/issues)
-- 💬 **开发团队**: Campus Forum Team
+- 💬 **开发人员**: Hong.YX
 
 ---
 
 <div align="center">
-
 **⚠️ 重要提示**: 本项目仅供学习交流使用，请遵守相关法律法规，文明使用论坛功能。
 
-**© 2025 校园网匿名论坛** | 基于Flask开发 | 包含完整的安全防护体系
+**© 2025 校园网匿名论坛** | 基于Flask开发 
 
 </div> 
